@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HMSVirtualBackgroundPlugin } from "@100mslive/hms-virtual-background";
 import {
   useHMSActions,
@@ -14,6 +14,7 @@ export const VirtualBackground = () => {
   const pluginRef = useRef(null);
   const hmsActions = useHMSActions();
   const isAllowedToPublish = useHMSStore(selectIsAllowedToPublish);
+  const [pluginSupport, setPluginSupport] = useState(false);
   const isVBPresent = useHMSStore(
     selectIsLocalVideoPluginPresent("@100mslive/hms-virtual-background")
   );
