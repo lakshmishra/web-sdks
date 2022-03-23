@@ -133,9 +133,9 @@ export class HMSVideoPluginsManager {
     this.pluginNumFramesSkipped[name] = numFramesToSkip;
 
     const result = plugin.checkSupport();
-    if(result.isSupported){
+    if (result.isSupported) {
       HMSLogger.i(TAG, `plugin is supported,- ${plugin.getName()}`);
-    }else{
+    } else {
       switch (result.errType) {
         case HMSPluginUnsupportedTypes.PLATFORM_NOT_SUPPORTED:
           const error = ErrorFactory.MediaPluginErrors.PlatformNotSupported(
