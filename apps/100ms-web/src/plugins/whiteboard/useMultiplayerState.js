@@ -4,6 +4,7 @@ import { useHMSStore, selectDidIJoinWithin } from "@100mslive/react-sdk";
 import { provider as room } from "./PusherCommunicationProvider";
 import { useWhiteboardMetadata } from "./useWhiteboardMetadata";
 import { WhiteboardEvents as Events } from "./WhiteboardEvents";
+import { useUpdateMyPresence } from "./useUpdateMyPresence";
 
 const useWhiteboardState = () => {
   const { amIWhiteboardOwner } = useWhiteboardMetadata();
@@ -16,9 +17,11 @@ const useWhiteboardState = () => {
  * Ref: https://github.com/tldraw/tldraw/blob/main/apps/www/hooks/useMultiplayerState.ts
  */
 export function useMultiplayerState(roomId) {
+  /** @type {[import("@tldraw/tldraw").TldrawApp, import("react").Dispatch<any>]} */
   const [app, setApp] = useState(null);
   const [isReady, setIsReady] = useState(false);
   const { amIWhiteboardOwner, shouldRequestState } = useWhiteboardState();
+  const updateMyPresence = useUpdateMyPresence();
 
   /**
    * Stores current state(shapes, bindings, [assets]) of the whiteboard
@@ -102,6 +105,13 @@ export function useMultiplayerState(roomId) {
     [applyStateToBoard, getCurrentState, updateLocalState]
   );
 
+  const handlePresenceChange = useCallback(
+    state => {
+      app.updateUsers([state.user]);
+    },
+    [app]
+  );
+
   const setupInitialState = useCallback(() => {
     if (!isReady) {
       return;
@@ -159,9 +169,12 @@ export function useMultiplayerState(roomId) {
   );
 
   // Handle presence updates when the user's pointer / selection changes
-  const onChangePresence = useCallback((app, user) => {
-    room.broadcastEvent(Events.PRESENCE_CHANGE, { id: app.room?.userId, user });
-  }, []);
+  const onChangePresence = useCallback(
+    (app, user) => {
+      updateMyPresence(app, user);
+    },
+    [updateMyPresence]
+  );
 
   // Subscriptions and initial setup
   useEffect(() => {
@@ -176,6 +189,9 @@ export function useMultiplayerState(roomId) {
       if (stillAlive) {
         unsubs.push(room.subscribe(Events.STATE_CHANGE, handleShapeChanges));
         unsubs.push(room.subscribe(Events.CURRENT_STATE, handleShapeChanges));
+        unsubs.push(
+          room.subscribe(Events.PRESENCE_CHANGE, handlePresenceChange)
+        );
 
         // On request state(peer join), send whole current state to update the new peer's whiteboard
         unsubs.push(room.subscribe(Events.REQUEST_STATE, sendCurrentState));
@@ -194,7 +210,13 @@ export function useMultiplayerState(roomId) {
       stillAlive = false;
       unsubs.forEach(unsub => unsub());
     };
-  }, [app, setupInitialState, sendCurrentState, handleShapeChanges]);
+  }, [
+    app,
+    setupInitialState,
+    sendCurrentState,
+    handleShapeChanges,
+    handlePresenceChange,
+  ]);
 
   useEffect(() => {
     // Store last state on closing whitboard so that when the board is reopened the state could be fetched and reapplied
