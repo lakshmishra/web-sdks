@@ -85,7 +85,7 @@ export function useMultiplayerState(roomId) {
     [app]
   );
 
-  const handleChanges = useCallback(
+  const handleShapeChanges = useCallback(
     state => {
       if (!state) {
         return;
@@ -109,7 +109,7 @@ export function useMultiplayerState(roomId) {
 
     if (amIWhiteboardOwner) {
       // On board open, update the document with initial/stored content
-      handleChanges(room.getStoredEvent(Events.CURRENT_STATE));
+      handleShapeChanges(room.getStoredEvent(Events.CURRENT_STATE));
       // Send current state to other peers in the room currently
       sendCurrentState();
     } else if (shouldRequestState) {
@@ -123,7 +123,7 @@ export function useMultiplayerState(roomId) {
     isReady,
     amIWhiteboardOwner,
     shouldRequestState,
-    handleChanges,
+    handleShapeChanges,
     sendCurrentState,
   ]);
 
@@ -159,9 +159,9 @@ export function useMultiplayerState(roomId) {
   );
 
   // Handle presence updates when the user's pointer / selection changes
-  // const onChangePresence = useCallback((app, user) => {
-  //   updateMyPresence({ id: app.room?.userId, user });
-  // }, [][updateMyPresence]);
+  const onChangePresence = useCallback((app, user) => {
+    room.broadcastEvent(Events.PRESENCE_CHANGE, { id: app.room?.userId, user });
+  }, []);
 
   // Subscriptions and initial setup
   useEffect(() => {
@@ -174,8 +174,8 @@ export function useMultiplayerState(roomId) {
     function setupDocument() {
       // Subscribe to changes
       if (stillAlive) {
-        unsubs.push(room.subscribe(Events.STATE_CHANGE, handleChanges));
-        unsubs.push(room.subscribe(Events.CURRENT_STATE, handleChanges));
+        unsubs.push(room.subscribe(Events.STATE_CHANGE, handleShapeChanges));
+        unsubs.push(room.subscribe(Events.CURRENT_STATE, handleShapeChanges));
 
         // On request state(peer join), send whole current state to update the new peer's whiteboard
         unsubs.push(room.subscribe(Events.REQUEST_STATE, sendCurrentState));
@@ -194,7 +194,7 @@ export function useMultiplayerState(roomId) {
       stillAlive = false;
       unsubs.forEach(unsub => unsub());
     };
-  }, [app, setupInitialState, sendCurrentState, handleChanges]);
+  }, [app, setupInitialState, sendCurrentState, handleShapeChanges]);
 
   useEffect(() => {
     // Store last state on closing whitboard so that when the board is reopened the state could be fetched and reapplied
@@ -208,5 +208,5 @@ export function useMultiplayerState(roomId) {
     return handleUnmount;
   }, [isReady, shouldRequestState, getCurrentState]);
 
-  return { onMount, onChangePage };
+  return { onMount, onChangePage, onChangePresence };
 }

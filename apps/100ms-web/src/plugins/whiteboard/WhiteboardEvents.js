@@ -5,4 +5,6 @@ export const WhiteboardEvents = {
   CURRENT_STATE: "current-state",
   // For newly joined peers to request current state from owner
   REQUEST_STATE: "request-state",
+  // To update cursor movements
+  PRESENCE_CHANGE: "presence-change",
 };
