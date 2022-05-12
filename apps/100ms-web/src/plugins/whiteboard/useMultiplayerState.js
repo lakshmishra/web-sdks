@@ -200,11 +200,9 @@ export function useMultiplayerState(roomId) {
       }
     }
 
-    (async () => {
-      await room.init();
-      setupDocument();
-      setupInitialState();
-    })();
+    room.init();
+    setupDocument();
+    setupInitialState();
 
     return () => {
       stillAlive = false;
