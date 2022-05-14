@@ -192,7 +192,7 @@ export default class JsonRpcSignal implements ISignal {
   }
 
   trickle(target: HMSConnectionRole, candidate: RTCIceCandidateInit) {
-    HMSLogger.i(this.TAG, `trickle: ${target}`, candidate);
+    HMSLogger.i(this.TAG, `trickle: ${target} candidate: ${JSON.stringify(candidate)}`);
     if (this.isJoinCompleted) {
       this.notify(HMSSignalMethod.TRICKLE, { target, candidate });
     } else {
