@@ -52,7 +52,7 @@ const defaultUiSettings = {
     METADATA_UPDATED: true,
   },
   uiViewMode: UI_MODE_GRID,
-  showStatsOnTiles: false,
+  showStatsOnTiles: true,
   enableAmbientMusic: false,
 };
 
