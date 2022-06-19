@@ -77,7 +77,7 @@ const getRelevantStatsFromTrackReport = (trackReport?: RTCStatsReport) => {
         remoteStreamStats = stat;
         break;
       case 'codec':
-        mimeTypes[stat.id] = stat.mimeType;
+        mimeTypes[stat.id] = stat.mimeType + stat?.sdpFmtpLine || '';
         break;
       default:
         break;
