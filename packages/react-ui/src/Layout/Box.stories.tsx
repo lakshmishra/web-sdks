@@ -1,7 +1,6 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { Label } from './Label';
-import { Input } from '../Input';
-import LabelDocs from './Label.mdx';
+import { Box } from './Box';
+import BoxDocs from './Box.mdx';
 import React from 'react';
 
 export default {
@@ -9,29 +8,21 @@ export default {
    * See https://storybook.js.org/docs/react/configure/overview#configure-story-loading
    * to learn how to generate automatic titles
    */
-  title: 'UI Components/Label',
-  component: Label,
+  title: 'UI Components/Box',
+  component: Box,
   argTypes: { onClick: { action: 'clicked' } },
   parameters: {
     docs: {
-      page: LabelDocs,
+      page: BoxDocs,
     },
   },
-} as ComponentMeta<typeof Label>;
-
-//add textbox
+} as ComponentMeta<typeof Box>;
 
 //👇 We create a “template” of how args map to rendering
-const Template: ComponentStory<typeof Label> = args => (
-  <>
-    {' '}
-    <Label {...args}>Hello World</Label>
-    <Input></Input>
-  </>
-);
+const Template: ComponentStory<typeof Box> = args => <Box {...args}></Box>;
 
 export const Index = Template.bind({});
 
 Index.args = {
-  css: { bg: '$secondaryDefault', px: '$4' },
+  css: { width: '$40', height: '$40', border: '1px solid $secondaryDark' },
 };
