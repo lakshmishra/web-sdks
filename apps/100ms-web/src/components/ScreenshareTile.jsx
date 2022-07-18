@@ -14,6 +14,7 @@ import { getVideoTileLabel } from "./peerTileUtils";
 import screenfull from "screenfull";
 import { UI_SETTINGS } from "../common/constants";
 import { useIsHeadless, useUISettings } from "./AppData/useUISettings";
+import { useVideoZoom } from "./hooks/useVideoZoom";
 
 const labelStyles = {
   position: "unset",
@@ -36,7 +37,7 @@ const Tile = ({
   const isHeadless = useIsHeadless();
   const [isMouseHovered, setIsMouseHovered] = useState(false);
   const label = getVideoTileLabel({
-    peerName: peer.name,
+    peerName: peer?.name,
     isLocal: false,
     track,
   });
@@ -49,6 +50,7 @@ const Tile = ({
   });
   const isFullScreenSupported = screenfull.isEnabled;
   const audioTrack = useHMSStore(selectScreenShareAudioByPeerID(peer?.id));
+  const ref = useVideoZoom();
   return (
     <StyledVideoTile.Root
       css={{ width, height }}
@@ -58,7 +60,7 @@ const Tile = ({
         <StyledVideoTile.Container
           transparentBg
           ref={fullscreenRef}
-          css={{ flexDirection: "column" }}
+          css={{ flexDirection: "column", overflow: "hidden" }}
           onMouseEnter={() => setIsMouseHovered(true)}
           onMouseLeave={() => {
             setIsMouseHovered(false);
@@ -83,6 +85,7 @@ const Tile = ({
               mirror={peer.isLocal && track?.source === "regular"}
               attach={!isAudioOnly}
               trackId={track.id}
+              ref={ref}
             />
           ) : null}
           <StyledVideoTile.Info css={labelStyles}>{label}</StyledVideoTile.Info>
@@ -99,7 +102,6 @@ const Tile = ({
     </StyledVideoTile.Root>
   );
 };
-
 const ScreenshareTile = React.memo(Tile);
 
 export default ScreenshareTile;
