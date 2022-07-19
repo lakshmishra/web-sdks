@@ -25,7 +25,9 @@ export const useVideoZoom = () => {
       if (e.key === "Escape" && element.style.transform) {
         e.stopPropagation();
         scale = 1;
-        const transformedMatrix = new DOMMatrixReadOnly().scale(scale, scale);
+        const transformedMatrix = new DOMMatrixReadOnly()
+          .scale(scale, scale)
+          .translate(0, 0);
         element.style.transform = transformedMatrix.toString();
       }
     });
