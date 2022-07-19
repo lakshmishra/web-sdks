@@ -25,7 +25,8 @@ export const useVideoZoom = () => {
       if (e.key === "Escape" && element.style.transform) {
         e.stopPropagation();
         scale = 1;
-        element.style.transform = `matrix(${scale}, 0 , 0, ${scale}, 0, 0)`;
+        const transformedMatrix = new DOMMatrixReadOnly().scale(scale, scale);
+        element.style.transform = transformedMatrix.toString();
       }
     });
 
@@ -34,8 +35,8 @@ export const useVideoZoom = () => {
       scale += e.deltaY * -factor;
       // Restrict scale
       scale = Math.min(Math.max(1, scale), max_scale);
-      const result = new DOMMatrixReadOnly().scale(scale, scale);
-      element.style.transform = result.toString();
+      const transformedMatrix = new DOMMatrixReadOnly().scale(scale, scale);
+      element.style.transform = transformedMatrix.toString();
     });
 
     function startDrag(event) {
@@ -64,12 +65,12 @@ export const useVideoZoom = () => {
       const width = element.clientWidth;
       const offsetX = width / 4 - offset.x; // allow pan by 1/4  - left offset
       const offsetY = offset.y;
-      const result = new DOMMatrixReadOnly()
+      const transformedMatrix = new DOMMatrixReadOnly()
         .scale(scale)
         .translate(position.x, position.y);
-      result.e = containedPan(result.e, offsetX);
-      result.f = containedPan(result.f, offsetY);
-      element.style.transform = result.toString();
+      transformedMatrix.e = containedPan(transformedMatrix.e, offsetX);
+      transformedMatrix.f = containedPan(transformedMatrix.f, offsetY);
+      element.style.transform = transformedMatrix.toString();
     }
 
     element.addEventListener("mousedown", startDrag);
