@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { usePinchZoom } from "react-use";
 
 let scale = 1;
 const factor = 0.01;
@@ -7,24 +6,6 @@ const max_scale = 1.425;
 
 export const useVideoZoom = () => {
   const ref = useRef(null);
-  const { zoomingState } = usePinchZoom(ref);
-
-  useEffect(() => {
-    if (!ref.current) {
-      return;
-    }
-    console.error(zoomingState);
-    if (zoomingState === "ZOOM_IN") {
-      // perform zoom in scaling
-      scale += factor;
-    } else if (zoomingState === "ZOOM_OUT") {
-      // perform zoom out in scaling
-      scale -= factor;
-    }
-    scale = Math.min(Math.max(1, scale), max_scale);
-    const transformedMatrix = new DOMMatrixReadOnly().scale(scale);
-    ref.current.style.transform = transformedMatrix.toString();
-  }, [zoomingState]);
 
   useEffect(() => {
     if (!ref.current) {
