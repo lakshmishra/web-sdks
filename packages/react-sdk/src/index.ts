@@ -7,6 +7,7 @@ export {
   useHMSVanillaNotifications,
   useHMSStatsStore,
 } from './primitives/HmsRoomProvider';
+export { CreateContextProvider } from './primitives/HMSContextProvider';
 export { usePreviewJoin } from './hooks/usePreviewJoin';
 export { useAVToggle } from './hooks/useAVToggle';
 export { useVideo } from './hooks/useVideo';

@@ -1,9 +1,10 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App";
+// import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import LogRocket from "logrocket";
 import setupLogRocketReact from "logrocket-react";
+import MultiContext from "./MultiContext";
 
 if (
   process.env.NODE_ENV === "production" &&
@@ -16,7 +17,7 @@ if (
 const root = createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <App />
+    <MultiContext />
   </React.StrictMode>
 );
 

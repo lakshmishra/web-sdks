@@ -31,7 +31,7 @@ import "./index.css";
 const Conference = React.lazy(() => import("./components/conference"));
 const PreviewScreen = React.lazy(() => import("./components/PreviewScreen"));
 
-const defaultTokenEndpoint = process.env
+export const defaultTokenEndpoint = process.env
   .REACT_APP_TOKEN_GENERATION_ENDPOINT_DOMAIN
   ? `${getBackendEndpoint()}${
       process.env.REACT_APP_TOKEN_GENERATION_ENDPOINT_DOMAIN
