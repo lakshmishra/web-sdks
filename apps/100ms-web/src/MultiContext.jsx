@@ -15,15 +15,10 @@ const MultiContext = () => {
   return (
     <div>
       {rooms.map(room => {
-        const { HMSRoomProvider, useHMSStore, useHMSActions } =
-          ContextCreator(room);
+        const { HMSRoomProvider } = ContextCreator(room);
         return (
           <HMSRoomProvider key={room}>
-            <Preview
-              room={room}
-              useHMSStore={useHMSStore}
-              useHMSActions={useHMSActions}
-            />
+            <Preview room={room} />
           </HMSRoomProvider>
         );
       })}
@@ -31,7 +26,8 @@ const MultiContext = () => {
   );
 };
 
-export const Preview = ({ room, useHMSStore, useHMSActions }) => {
+export const Preview = ({ room }) => {
+  const { useHMSActions, useHMSStore } = ContextCreator(room);
   const actions = useHMSActions();
   const roomState = useHMSStore(selectRoomState);
   const previewCalled = useRef(false);
