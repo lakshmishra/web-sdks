@@ -1,11 +1,16 @@
 import {
+  HMSConfigInitialSettings,
   HMSReactiveStore,
   selectIsConnectedToRoom,
+  selectIsInPreview,
   selectLocalAudioTrackID,
   selectLocalPeerID,
   selectLocalVideoTrackID,
+  selectLocalAuxiliaryTrackIDs,
   selectPeerByID,
   selectRoleByRoleName,
+  selectRemotePeers,
+  selectTrackByID,
 } from '@100mslive/hms-video-store';
 import { IHMSStoreReadOnly } from '../../packages/hms-video-store/src/core/IHMSStore';
 import { IHMSActions } from '@100mslive/hms-video-store/src/core/IHMSActions';
@@ -57,14 +62,39 @@ export class CypressPeer {
     return this.store.getState(selectLocalAudioTrackID);
   }
 
-  join = async () => {
-    await this.actions.join({ userName: this.name, authToken: this.authToken, initEndpoint: this.initEndpoint });
-    await this.waitForTracks(this.id);
+  get auxiliaryTracks() {
+    return this.store.getState(selectLocalAuxiliaryTrackIDs);
+  }
+
+  get remotePeers() {
+    return this.store.getState(selectRemotePeers);
+  }
+
+  join = async (settings?: HMSConfigInitialSettings) => {
+    await this.actions.join({
+      userName: this.name,
+      authToken: this.authToken,
+      initEndpoint: this.initEndpoint,
+      settings,
+    });
+    await this.waitForPeerTracks(this.id);
     return `peer ${this.name} joined`;
   };
 
-  waitForTracks = async (peerId: string) => {
+  preview = async (settings?: HMSConfigInitialSettings) => {
+    await this.actions.preview({
+      userName: this.name,
+      authToken: this.authToken,
+      initEndpoint: this.initEndpoint,
+      settings,
+    });
+    await this.waitForPeerTracks(this.id);
+    return `peer ${this.name} in preview`;
+  };
+
+  waitForPeerTracks = (peerId: string) => {
     return new Promise(resolve => {
+      // eslint-disable-next-line complexity
       this.store.subscribe(peer => {
         if (!peer) {
           return;
@@ -76,6 +106,16 @@ export class CypressPeer {
           resolve(true);
         }
       }, selectPeerByID(peerId));
+    });
+  };
+
+  waitForTrack = (trackId: string) => {
+    return new Promise(resolve => {
+      this.store.subscribe(track => {
+        if (track) {
+          resolve(true);
+        }
+      }, selectTrackByID(trackId));
     });
   };
 
@@ -102,6 +142,10 @@ export class CypressPeer {
 
   isConnected = () => {
     return this.store.getState(selectIsConnectedToRoom);
+  };
+
+  isInPreview = () => {
+    return this.store.getState(selectIsInPreview);
   };
 
   /**
