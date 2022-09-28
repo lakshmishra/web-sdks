@@ -213,9 +213,17 @@ export class DeviceManager implements HMSDeviceManager {
    * 3. select the default one if nothing was found
    * 4. select the first option if there is no default
    */
+  // eslint-disable-next-line complexity
   setOutputDevice(deviceChange = false) {
     const inputDevice = this.getNewAudioInputDevice();
     const prevSelection = this.createIdentifier(this.outputDevice);
+    const passedInOutputDeviceId = this.store.getConfig()?.settings?.audioOutputDeviceId;
+    const passedInOutputDeviceInfo = this.audioOutput.find(device => device.deviceId === passedInOutputDeviceId);
+    if (passedInOutputDeviceInfo) {
+      this.outputDevice = passedInOutputDeviceInfo;
+      this.store.updateAudioOutputDevice(passedInOutputDeviceInfo);
+      return;
+    }
     this.outputDevice = undefined;
     if (inputDevice?.groupId) {
       // only check for label because if groupId check is added it will select speaker
