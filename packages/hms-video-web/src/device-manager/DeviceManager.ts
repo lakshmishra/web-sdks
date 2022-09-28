@@ -219,7 +219,7 @@ export class DeviceManager implements HMSDeviceManager {
     const prevSelection = this.createIdentifier(this.outputDevice);
     const passedInOutputDeviceId = this.store.getConfig()?.settings?.audioOutputDeviceId;
     const passedInOutputDeviceInfo = this.audioOutput.find(device => device.deviceId === passedInOutputDeviceId);
-    if (passedInOutputDeviceInfo) {
+    if (passedInOutputDeviceInfo && !deviceChange) {
       this.outputDevice = passedInOutputDeviceInfo;
       this.store.updateAudioOutputDevice(passedInOutputDeviceInfo);
       return;
