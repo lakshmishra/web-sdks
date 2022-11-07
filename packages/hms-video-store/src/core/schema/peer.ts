@@ -45,6 +45,7 @@ interface BaseTrack {
   peerId?: string;
   deviceID?: string;
   plugins?: string[];
+  isLocal: boolean;
 }
 
 export interface HMSAudioTrack extends BaseTrack {

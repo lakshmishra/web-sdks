@@ -181,6 +181,7 @@ export class StoryBookSDK implements Partial<HMSActions> {
           id: audioTrackID,
           type: 'audio',
           source: 'regular',
+          isLocal: peer.isLocal,
         };
       }
       if (peer.videoTrack) {
@@ -189,6 +190,7 @@ export class StoryBookSDK implements Partial<HMSActions> {
           id: videoTrackID,
           type: 'video',
           source: 'regular',
+          isLocal: peer.isLocal,
         };
       }
     });

@@ -58,6 +58,7 @@ export class SDKToHMS {
       enabled: sdkTrack.enabled,
       displayEnabled: sdkTrack.enabled,
       peerId: sdkTrack.peerId || peerId,
+      isLocal: sdkTrack instanceof SDKHMSLocalVideoTrack || sdkTrack instanceof SDKHMSLocalAudioTrack,
     } as HMSTrack;
     this.enrichTrack(track, sdkTrack);
     return track;

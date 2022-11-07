@@ -24,6 +24,7 @@ function makeTrack(
   type: HMSTrackType,
   source: HMSTrackSource,
   peerId: string,
+  isLocal = false,
   enabled?: boolean,
 ): HMSTrack {
   return {
@@ -35,6 +36,7 @@ function makeTrack(
     volume: type === 'audio' ? 10 : undefined,
     layer: type === 'video' ? HMSSimulcastLayer.HIGH : undefined,
     peerId: peerId,
+    isLocal: isLocal,
   };
 }
 
@@ -124,8 +126,8 @@ export const makeFakeStore = (): HMSStore => {
       },
     },
     tracks: {
-      '101': makeTrack('101', 'video', 'regular', '1'),
-      '102': makeTrack('102', 'audio', 'regular', '1'),
+      '101': makeTrack('101', 'video', 'regular', '1', true),
+      '102': makeTrack('102', 'audio', 'regular', '1', true),
       '103': makeTrack('103', 'video', 'regular', '2'),
       '104': makeTrack('104', 'audio', 'regular', '2'),
       '105': makeTrack('105', 'video', 'screen', '2'),
