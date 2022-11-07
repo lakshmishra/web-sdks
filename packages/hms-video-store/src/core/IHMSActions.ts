@@ -457,4 +457,9 @@ export interface IHMSActions {
    **/
   setAppData(key: string, value: Record<string | number, any>, merge?: boolean): void;
   setAppData(key: string, value: any): void;
+  /**
+   * Pass the trackID from store to get the corresponding native MediaStreamTrack if it exists.
+   * @param trackID
+   */
+  getNativeMediaStreamTrackByID(trackID: HMSTrackID): MediaStreamTrack | undefined;
 }

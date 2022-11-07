@@ -635,6 +635,10 @@ export class HMSSDKActions implements IHMSActions {
     }
   }
 
+  getNativeMediaStreamTrackByID(trackID: HMSTrackID) {
+    return this.hmsSDKTracks[trackID]?.nativeTrack;
+  }
+
   private resetState(reason = 'resetState') {
     this.isRoomJoinCalled = false;
     this.hmsSDKTracks = {};
