@@ -11,6 +11,8 @@ import { useSetUiSettings, useTokenEndpoint } from "./AppData/useUISettings";
 import { useNavigation } from "./hooks/useNavigation";
 import getToken from "../services/tokenService";
 import {
+  DEFAULT_ROOM_ID,
+  DEFAULT_USER_ROLE,
   QUERY_PARAM_AUTH_TOKEN,
   QUERY_PARAM_NAME,
   QUERY_PARAM_SKIP_PREVIEW,
@@ -33,7 +35,13 @@ const PreviewScreen = React.memo(({ getUserToken }) => {
   const navigate = useNavigation();
   const tokenEndpoint = useTokenEndpoint();
   const [, setIsHeadless] = useSetUiSettings(UI_SETTINGS.isHeadless);
-  const { roomId: urlRoomId, role: userRole } = useParams(); // from the url
+  let { roomId: urlRoomId, role: userRole } = useParams(); // from the url
+  if (!urlRoomId) {
+    urlRoomId = DEFAULT_ROOM_ID;
+  }
+  if (!userRole) {
+    userRole = DEFAULT_USER_ROLE;
+  }
   const [token, setToken] = useState(null);
   const [error, setError] = useState({ title: "", body: "" });
   // way to skip preview for automated tests, beam recording and streaming
@@ -41,7 +49,7 @@ const PreviewScreen = React.memo(({ getUserToken }) => {
   let skipPreview = useSearchParam(QUERY_PARAM_SKIP_PREVIEW) === "true";
   // use this field to join directly for quick testing while in local
   const directJoinHeadfulFromEnv =
-    process.env.REACT_APP_HEADLESS_JOIN === "true";
+    process.env.REACT_APP_HEADLESS_JOIN === "true2";
   const directJoinHeadful =
     useSearchParam(QUERY_PARAM_SKIP_PREVIEW_HEADFUL) === "true" ||
     directJoinHeadfulFromEnv;

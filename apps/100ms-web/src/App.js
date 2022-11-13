@@ -212,6 +212,14 @@ const RouteList = ({ getUserToken, getDetails }) => {
         path="/:roomId/"
         element={<RedirectToPreview getDetails={getDetails} />}
       />
+      <Route
+        path="/"
+        element={
+          <Suspense fallback={<FullPageProgress />}>
+            <PreviewScreen getUserToken={getUserToken} />
+          </Suspense>
+        }
+      />
       <Route path="*" element={<ErrorPage error="Invalid URL!" />} />
     </Routes>
   );
