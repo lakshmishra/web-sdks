@@ -4,7 +4,7 @@ import axios from 'axios';
 export const getRoomCodeFromUrl = () => {
   const path = window.location.pathname;
   const regex = /(\/streaming)?\/(preview|meeting)\/(?<code>[^/]+)/;
-  return path.match(regex)?.groups?.code || null;
+  return path.match(regex)?.groups?.code || '63711083e08863a3f2fb8505';
 };
 
 export const getAuthInfo = () => {

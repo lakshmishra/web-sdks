@@ -58,7 +58,7 @@ const App = () => {
   });
 
   useEffect(() => {
-    const code = getRoomCodeFromUrl() || '63711083e08863a3f2fb8505';
+    const code = getRoomCodeFromUrl();
     if (code) {
       fetchData();
     }

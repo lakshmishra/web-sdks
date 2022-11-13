@@ -88,13 +88,13 @@ const PreviewJoin = ({ token, onJoin, env, skipPreview, initialName }) => {
   return (
     <Container>
       <Text variant="h4" css={{ wordBreak: "break-word", textAlign: "center" }}>
-        Get Started
+        Welcome!
       </Text>
       <Text
         css={{ c: "$textMedEmp", my: "$6", textAlign: "center" }}
         variant="body1"
       >
-        Setup your audio and video before joining
+        Please verify your audio and video before before joining
       </Text>
       <Flex
         align="center"
