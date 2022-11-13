@@ -191,11 +191,11 @@ class Transcriber {
         name: localPeer.name,
       };
 
-      let url = process.env.REACT_APP_DYNAMIC_STT_TOKEN_GENERATION_ENDPOINT;
-      let res = await fetch(url);
-      let body = await res.json();
-      if (body && body.token) {
-        const token = body.token;
+      // let url = process.env.REACT_APP_DYNAMIC_STT_TOKEN_GENERATION_ENDPOINT;
+      // let res = await fetch(url);
+      // let body = await res.json();
+      const token = "263867a302594ac1bee5feeb8b68c03a";
+      if (token) {
         this.socket = await new WebSocket(
           `wss://api.assemblyai.com/v2/realtime/ws?sample_rate=${this.sttTuningConfig.desiredSampRate}&token=${token}`
         );
