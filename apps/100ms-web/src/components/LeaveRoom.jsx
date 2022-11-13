@@ -74,7 +74,7 @@ export const LeaveRoom = () => {
             css={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
             onClick={leaveRoom}
           >
-            <Tooltip title="Leave Room">
+            <Tooltip title="Leave Consultation">
               {!isStreamKit ? (
                 <Box>
                   <HangUpIcon key="hangUp" />
@@ -114,7 +114,7 @@ export const LeaveRoom = () => {
               <Dropdown.Item
                 css={{ w: "100%", bg: "rgba(178, 71, 81, 0.1)" }}
                 onClick={() => {
-                  setShowEndRoomModal(true);
+                  endRoom();
                 }}
                 data-testid="end_room_btn"
               >
@@ -124,7 +124,7 @@ export const LeaveRoom = () => {
                   </Box>
                   <Flex direction="column" align="start">
                     <Text variant="lg" css={{ c: "$error" }}>
-                      End Room for All
+                      End Consultation
                     </Text>
                     <Text variant="sm" css={{ c: "$textMedEmp", mt: "$2" }}>
                       Warning: You can’t undo this action
@@ -143,10 +143,10 @@ export const LeaveRoom = () => {
                   </Box>
                   <Flex direction="column" align="start">
                     <Text variant="lg">
-                      Leave {isStreamKit ? "Studio" : "Room"}
+                      Leave {isStreamKit ? "Studio" : "Consultation"}
                     </Text>
                     <Text variant="sm" css={{ c: "$textMedEmp", mt: "$2" }}>
-                      You can always rejoin later
+                      You can rejoin from a different device
                     </Text>
                   </Flex>
                 </Flex>
@@ -161,7 +161,7 @@ export const LeaveRoom = () => {
           key="LeaveRoom"
           data-testid="leave_room_btn"
         >
-          <Tooltip title="Leave Room">
+          <Tooltip title="Leave Consultation">
             <Box>
               {isStreamKit ? (
                 <Box css={{ "@md": { transform: "rotate(180deg)" } }}>

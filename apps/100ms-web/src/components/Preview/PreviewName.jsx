@@ -19,7 +19,7 @@ const PreviewName = ({ name, onChange, onJoin, enableJoin }) => {
         autoComplete="name"
       />
       <Button type="submit" disabled={!name || !enableJoin} onClick={onJoin}>
-        {isStreamingKit() ? "Join Studio" : "Join Room"}
+        {isStreamingKit() ? "Join Studio" : "Join Consultation"}
       </Button>
     </Form>
   );

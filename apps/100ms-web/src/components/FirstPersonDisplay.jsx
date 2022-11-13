@@ -1,8 +1,11 @@
 import React from "react";
+import { selectLocalPeerRoleName, useHMSStore } from "@100mslive/react-sdk";
 import { Box, Flex, Text } from "@100mslive/react-ui";
 import PlaceholderBg from "../images/first_person.png";
 
 export const FirstPersonDisplay = React.memo(() => {
+  const role = useHMSStore(selectLocalPeerRoleName);
+  const otherRole = role === "doctor" ? "patient" : "doctor";
   return (
     <Box
       css={{
@@ -38,14 +41,14 @@ export const FirstPersonDisplay = React.memo(() => {
           variant="h6"
           css={{ mt: "$4", "@md": { fontSize: "$sm" } }}
         >
-          You’re the first one here.
+          The appointment will start in a few minutes.
         </Text>
         <Text
           color="white"
           variant="h6"
           css={{ mt: "$2", "@md": { fontSize: "$sm" } }}
         >
-          Sit back and relax till the others join.
+          Please wait till the {otherRole} joins
         </Text>
       </Flex>
     </Box>

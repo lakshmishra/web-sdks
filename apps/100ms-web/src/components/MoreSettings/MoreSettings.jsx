@@ -14,8 +14,6 @@ import {
 import {
   CheckIcon,
   InfoIcon,
-  MicOffIcon,
-  PencilIcon,
   RecordIcon,
   SettingsIcon,
   VerticalMenuIcon,
@@ -94,31 +92,31 @@ export const MoreSettings = () => {
               <Dropdown.ItemSeparator />
             </>
           ) : null}
-          <Dropdown.Item
-            onClick={() => setShowChangeNameModal(value => !value)}
-            data-testid="change_name_btn"
-          >
-            <PencilIcon />
-            <Text variant="sm" css={{ ml: "$4" }}>
-              Change Name
-            </Text>
-          </Dropdown.Item>
+          {/*<Dropdown.Item*/}
+          {/*  onClick={() => setShowChangeNameModal(value => !value)}*/}
+          {/*  data-testid="change_name_btn"*/}
+          {/*>*/}
+          {/*  <PencilIcon />*/}
+          {/*  <Text variant="sm" css={{ ml: "$4" }}>*/}
+          {/*    Change Name*/}
+          {/*  </Text>*/}
+          {/*</Dropdown.Item>*/}
           <ChangeSelfRole onClick={() => setShowSelfRoleChange(true)} />
           <FullScreenItem />
           {isAllowedToPublish.screen && (
             <EmbedUrl setShowOpenUrl={setShowOpenUrl} />
           )}
-          {permissions.mute && (
-            <Dropdown.Item
-              onClick={() => setShowMuteAll(true)}
-              data-testid="mute_all_btn"
-            >
-              <MicOffIcon />
-              <Text variant="sm" css={{ ml: "$4" }}>
-                Mute All
-              </Text>
-            </Dropdown.Item>
-          )}
+          {/*{permissions.mute && (*/}
+          {/*  <Dropdown.Item*/}
+          {/*    onClick={() => setShowMuteAll(true)}*/}
+          {/*    data-testid="mute_all_btn"*/}
+          {/*  >*/}
+          {/*    <MicOffIcon />*/}
+          {/*    <Text variant="sm" css={{ ml: "$4" }}>*/}
+          {/*      Mute All*/}
+          {/*    </Text>*/}
+          {/*  </Dropdown.Item>*/}
+          {/*)}*/}
           <Dropdown.ItemSeparator />
           <Dropdown.Item
             onClick={() => setShowDeviceSettings(true)}

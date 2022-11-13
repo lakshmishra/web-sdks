@@ -284,7 +284,7 @@ export const ChatBody = ({ role, peerId, setPinnedMessage }) => {
         align="center"
         justify="center"
       >
-        <Text>There are no messages here</Text>
+        <Text>All messages exchanged here are confidential</Text>
       </Flex>
     );
   }
