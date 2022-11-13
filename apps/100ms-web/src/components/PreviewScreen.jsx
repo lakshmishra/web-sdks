@@ -49,7 +49,7 @@ const PreviewScreen = React.memo(({ getUserToken }) => {
   let skipPreview = useSearchParam(QUERY_PARAM_SKIP_PREVIEW) === "true";
   // use this field to join directly for quick testing while in local
   const directJoinHeadfulFromEnv =
-    process.env.REACT_APP_HEADLESS_JOIN === "true2";
+    process.env.REACT_APP_HEADLESS_JOIN === "true";
   const directJoinHeadful =
     useSearchParam(QUERY_PARAM_SKIP_PREVIEW_HEADFUL) === "true" ||
     directJoinHeadfulFromEnv;

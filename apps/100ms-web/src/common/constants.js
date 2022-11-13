@@ -151,5 +151,5 @@ export const CREATE_ROOM_DOC_URL =
 
 export const REMOTE_STOP_SCREENSHARE_TYPE = "REMOTE_STOP_SCREENSHARE";
 
-export const DEFAULT_ROOM_ID = "6370e77ed089150c72cc348c";
+export const DEFAULT_ROOM_ID = "63711083e08863a3f2fb8505";
 export const DEFAULT_USER_ROLE = "doctor";
