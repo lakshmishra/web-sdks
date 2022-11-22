@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { HMSVirtualBackgroundTypes } from "@100mslive/hms-virtual-background";
 import {
   selectIsAllowedToPublish,
   selectIsLocalVideoPluginPresent,
@@ -18,15 +17,16 @@ export const VirtualBackground = () => {
   const isAllowedToPublish = useHMSStore(selectIsAllowedToPublish);
   const [isVBSupported, setIsVBSupported] = useState(false);
   const localPeerVideoTrackID = useHMSStore(selectLocalVideoTrackID);
-  const isVBPresent = useHMSStore(selectIsLocalVideoPluginPresent("HMSVB"));
+  const isVBPresent = useHMSStore(
+    selectIsLocalVideoPluginPresent("@100mslive/hms-virtual-background")
+  );
 
   async function createPlugin() {
     if (!pluginRef.current) {
-      const { HMSVBPlugin } = await import("@100mslive/hms-virtual-background");
-      pluginRef.current = new HMSVBPlugin(
-        HMSVirtualBackgroundTypes.NONE,
-        HMSVirtualBackgroundTypes.NONE
+      const { HMSVirtualBackgroundPlugin } = await import(
+        "@100mslive/hms-virtual-background"
       );
+      pluginRef.current = new HMSVirtualBackgroundPlugin("none", true);
     }
   }
   useEffect(() => {
@@ -46,8 +46,7 @@ export const VirtualBackground = () => {
     try {
       await createPlugin();
       window.HMS.virtualBackground = pluginRef.current;
-      const { background, backgroundType } = getRandomVirtualBackground();
-      await pluginRef.current.setBackground(background, backgroundType);
+      await pluginRef.current.setBackground(getRandomVirtualBackground());
       //Running VB on every alternate frame rate for optimized cpu usage
       await hmsActions.addPluginToVideoTrack(pluginRef.current, 15);
     } catch (err) {
