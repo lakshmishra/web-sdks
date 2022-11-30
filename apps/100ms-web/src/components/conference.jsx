@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { usePrevious } from "react-use";
 import {
@@ -25,6 +25,7 @@ const Conference = () => {
   const prevState = usePrevious(roomState);
   const isConnectedToRoom = useHMSStore(selectIsConnectedToRoom);
   const hmsActions = useHMSActions();
+  const [update, setUpdate] = useState(0);
 
   useEffect(() => {
     if (!roomId) {
@@ -50,6 +51,17 @@ const Conference = () => {
       hmsActions.ignoreMessageTypes(["chat"]);
     }
   }, [isHeadless, hmsActions]);
+
+  useEffect(() => {
+    setUpdate(value => value++);
+    console.log("updated");
+  });
+
+  useEffect(() => {
+    setInterval(() => {
+      setUpdate(value => value + 1);
+    }, 100);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -79,7 +91,7 @@ const Conference = () => {
         }}
         data-testid="conferencing"
       >
-        <ConferenceMainView />
+        <ConferenceMainView update={{ update }} />
       </Box>
       {!isHeadless && (
         <Box css={{ flexShrink: 0, minHeight: "$24" }} data-testid="footer">

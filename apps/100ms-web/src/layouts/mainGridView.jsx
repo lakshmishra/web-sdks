@@ -10,7 +10,7 @@ import { useAppLayout } from "../components/AppData/useAppLayout";
 import { useUISettings } from "../components/AppData/useUISettings";
 import { UI_SETTINGS } from "../common/constants";
 
-export const MainGridView = () => {
+export const MainGridView = ({ update }) => {
   const centerRoles = useAppLayout("center") || [];
   const sidepaneRoles = useAppLayout("sidepane") || [];
   const maxTileCount = useUISettings(UI_SETTINGS.maxTileCount);
@@ -57,6 +57,7 @@ export const MainGridView = () => {
         allowRemoteMute={false}
         hideSidePane={!showSidePane}
         totalPeers={peers.length}
+        update={{ update }}
       />
       {showSidePane && (
         <GridSidePaneView peers={sidebarPeers} totalPeers={peers.length} />

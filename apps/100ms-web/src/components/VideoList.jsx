@@ -13,6 +13,7 @@ const List = ({
   maxColCount,
   maxRowCount,
   includeScreenShareForPeer,
+  update,
 }) => {
   const { aspectRatio } = useTheme();
   const tileOffset = useAppConfig("headlessConfig", "tileOffset");
@@ -61,6 +62,7 @@ const List = ({
                       peerId={tile.peer?.id}
                       trackId={tile.track?.id}
                       visible={pageNo === page}
+                      update={{ update }}
                     />
                   )
                 )}

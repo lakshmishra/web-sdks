@@ -32,7 +32,7 @@ const HLSView = React.lazy(() => import("./HLSView"));
 const ActiveSpeakerView = React.lazy(() => import("./ActiveSpeakerView"));
 const PinnedTrackView = React.lazy(() => import("./PinnedTrackView"));
 
-export const ConferenceMainView = () => {
+export const ConferenceMainView = ({ update }) => {
   const localPeerRole = useHMSStore(selectLocalPeerRoleName);
   const pinnedTrack = usePinnedTrack();
   const peerSharing = useHMSStore(selectPeerScreenSharing);
@@ -98,7 +98,7 @@ export const ConferenceMainView = () => {
   return (
     <Suspense fallback={<FullPageProgress />}>
       <Flex css={{ size: "100%", position: "relative" }}>
-        <ViewComponent />
+        <ViewComponent update={{ update }} />
         <SidePane />
       </Flex>
     </Suspense>

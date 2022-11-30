@@ -17,7 +17,7 @@ const eventsImg = webinarProps?.IMAGE_FILE || ""; // the image to show in center
 const webinarInfoLink = webinarProps?.LINK_HREF || "https://100ms.live/";
 
 // The center of the screen shows bigger tiles
-export const GridCenterView = ({ peers, maxTileCount }) => {
+export const GridCenterView = ({ peers, maxTileCount, update }) => {
   const mediaQueryLg = cssConfig.media.md;
   const limitMaxTiles = useMedia(mediaQueryLg);
   return (
@@ -34,6 +34,7 @@ export const GridCenterView = ({ peers, maxTileCount }) => {
           <VideoList
             peers={peers}
             maxTileCount={limitMaxTiles ? MAX_TILES_FOR_MOBILE : maxTileCount}
+            update={{ update }}
           />
         ) : eventRoomIDs.some(id => window.location.href.includes(id)) ? (
           <Box
