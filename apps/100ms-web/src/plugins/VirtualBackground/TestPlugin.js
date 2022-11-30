@@ -12,7 +12,17 @@ export class TestPlugin {
     ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
     ctx.fillRect(0, 0, input.width, input.height);
     ctx.globalCompositeOperation = "destination-over";
-    ctx.drawImage(input, 0, 0, input.width, input.height);
+    ctx.drawImage(
+      input,
+      0,
+      0,
+      input.width,
+      input.height,
+      0,
+      0,
+      input.width,
+      input.height
+    );
   }
 
   getName() {
