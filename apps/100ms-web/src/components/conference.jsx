@@ -54,14 +54,16 @@ const Conference = () => {
 
   useEffect(() => {
     setUpdate(value => value++);
-    console.log("updated");
-  });
-
-  useEffect(() => {
-    setInterval(() => {
-      setUpdate(value => value + 1);
-    }, 100);
-  }, []);
+    (async () => {
+      console.log("updated");
+      await new Promise(resolve => {
+        setTimeout(() => {
+          setUpdate(value => value + 1);
+          resolve();
+        }, 10);
+      });
+    })();
+  }, [update]);
 
   useEffect(() => {
     return () => {
