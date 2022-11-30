@@ -386,8 +386,8 @@ export class HMSVideoPluginsManager {
         return;
       }
     }
-    this.inputVideo.pause();
     this.inputVideo.srcObject = new MediaStream([this.hmsTrack.nativeTrack]);
+    this.inputVideo.autoplay = true;
   }
 
   /**
