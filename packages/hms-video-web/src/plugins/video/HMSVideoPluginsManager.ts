@@ -237,6 +237,9 @@ export class HMSVideoPluginsManager {
     this.outputCanvas = document.createElement('canvas') as CanvasElement;
     if (!this.inputVideo) {
       this.inputVideo = document.createElement('video');
+      this.inputVideo.muted = true;
+      this.inputVideo.playsInline = true;
+      this.inputVideo.autoplay = true;
     }
     // FF issue https://bugzilla.mozilla.org/show_bug.cgi?id=1388974
     this.inputCanvas.getContext('2d');
@@ -384,9 +387,6 @@ export class HMSVideoPluginsManager {
       }
     }
     this.inputVideo.pause();
-    this.inputVideo.muted = true;
-    this.inputVideo.playsInline = true;
-    this.inputVideo.autoplay = true;
     this.inputVideo.srcObject = new MediaStream([this.hmsTrack.nativeTrack]);
   }
 
