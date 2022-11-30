@@ -374,6 +374,7 @@ export class HMSVideoPluginsManager {
     if (!this.inputVideo) {
       return;
     }
+
     const srcObject = this.inputVideo.srcObject;
     if (srcObject !== null && srcObject instanceof MediaStream) {
       const existingTrackID = srcObject.getVideoTracks()[0]?.id;
@@ -383,10 +384,10 @@ export class HMSVideoPluginsManager {
       }
     }
     this.inputVideo.pause();
-    this.inputVideo.srcObject = new MediaStream([this.hmsTrack.nativeTrack]);
     this.inputVideo.muted = true;
     this.inputVideo.playsInline = true;
     this.inputVideo.autoplay = true;
+    this.inputVideo.srcObject = new MediaStream([this.hmsTrack.nativeTrack]);
   }
 
   /**
