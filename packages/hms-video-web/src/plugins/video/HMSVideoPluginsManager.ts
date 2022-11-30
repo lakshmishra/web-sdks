@@ -386,7 +386,7 @@ export class HMSVideoPluginsManager {
     this.inputVideo.srcObject = new MediaStream([this.hmsTrack.nativeTrack]);
     this.inputVideo.muted = true;
     this.inputVideo.playsInline = true;
-    await this.inputVideo.play();
+    this.inputVideo.autoplay = true;
   }
 
   /**
@@ -406,7 +406,7 @@ export class HMSVideoPluginsManager {
       this.inputCanvas.width = width;
     }
     const ctx = this.inputCanvas.getContext('2d');
-    ctx!.drawImage(this.inputVideo, 0, 0, width, height);
+    ctx!.drawImage(this.inputVideo, 0, 0, this.inputVideo.videoWidth, this.inputVideo.videoHeight, 0, 0, width, height);
   }
 
   private resetCanvases() {
