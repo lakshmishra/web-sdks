@@ -46,4 +46,5 @@ export const HMSEvents = {
   AUTOPLAY_ERROR: 'autoplay-error',
   ROLE_UPDATE_AFTER_ROLE_CHANGE: 'role-update-after-role-change',
   PUBLISH_COMPLETE_AFTER_JOIN: 'publish-complete-after-join',
+  LEAVE: 'leave',
 };

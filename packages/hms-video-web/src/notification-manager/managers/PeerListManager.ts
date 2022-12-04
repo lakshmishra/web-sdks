@@ -1,12 +1,12 @@
-import { HMSNotificationMethod } from '../HMSNotificationMethod';
+import { PeerManager } from './PeerManager';
+import { TrackManager } from './TrackManager';
 import { HMSUpdateListener } from '../..';
 import { HMSTrackUpdate } from '../../interfaces';
 import { HMSPeer } from '../../sdk/models/peer';
 import { IStore } from '../../sdk/store';
 import HMSLogger from '../../utils/logger';
+import { HMSNotificationMethod } from '../HMSNotificationMethod';
 import { PeerListNotification, PeerNotification, PeriodicRoomState } from '../HMSNotifications';
-import { PeerManager } from './PeerManager';
-import { TrackManager } from './TrackManager';
 
 /**
  * Handles:
@@ -22,6 +22,7 @@ import { TrackManager } from './TrackManager';
  *    - Track state change(enabled) as track update
  */
 export class PeerListManager {
+  private readonly TAG = '[PeerListManager]';
   constructor(
     private store: IStore,
     private peerManager: PeerManager,
@@ -29,19 +30,15 @@ export class PeerListManager {
     public listener?: HMSUpdateListener,
   ) {}
 
-  private get TAG() {
-    return `[${this.constructor.name}]`;
-  }
-
   handleNotification(method: string, notification: any, isReconnecting: boolean) {
     if (method === HMSNotificationMethod.PEER_LIST) {
       const peerList = notification as PeerListNotification;
       if (isReconnecting) {
-        HMSLogger.d(this.TAG, `RECONNECT_PEER_LIST event`, peerList);
+        HMSLogger.d(this.TAG, `RECONNECT_PEER_LIST event`, JSON.stringify(peerList, null, 2));
         this.handleReconnectPeerList(peerList);
       } else {
         // TODO: Don't call initial peerlist if atleast 1room state had happen
-        HMSLogger.d(this.TAG, `PEER_LIST event`, peerList);
+        HMSLogger.d(this.TAG, `PEER_LIST event`, JSON.stringify(peerList, null, 2));
         this.handleInitialPeerList(peerList);
       }
     } else if (method === HMSNotificationMethod.ROOM_STATE) {
@@ -89,7 +86,7 @@ export class PeerListManager {
     const currentPeerList = this.store.getRemotePeers();
     const peers = Object.values(peersMap);
     const peersToRemove = currentPeerList.filter(hmsPeer => !peersMap[hmsPeer.peerId]);
-    HMSLogger.d(this.TAG, { peersToRemove });
+    HMSLogger.d(this.TAG, `${peersToRemove}`);
 
     // Send peer-leave updates to all the missing peers
     peersToRemove.forEach(peer => {

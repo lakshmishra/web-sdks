@@ -1,10 +1,8 @@
 import { InitConfig } from './models';
-import HMSLogger from '../../utils/logger';
-import { userAgent } from '../../utils/support';
 import { ErrorFactory, HMSAction } from '../../error/ErrorFactory';
+import HMSLogger from '../../utils/logger';
 
-const TAG = 'InitService';
-
+const TAG = '[InitService]';
 export default class InitService {
   private static handleError(response: Response, body: { code: number; message: string }) {
     switch (response.status) {
@@ -21,14 +19,21 @@ export default class InitService {
     }
   }
 
-  static async fetchInitConfig(
-    token: string,
-    peerId: string,
+  static async fetchInitConfig({
+    token,
+    peerId,
+    userAgent,
     initEndpoint = 'https://prod-init.100ms.live',
     region = '',
-  ): Promise<InitConfig> {
+  }: {
+    token: string;
+    peerId: string;
+    userAgent: string;
+    initEndpoint?: string;
+    region?: string;
+  }): Promise<InitConfig> {
     HMSLogger.d(TAG, `fetchInitConfig: initEndpoint=${initEndpoint} token=${token} peerId=${peerId} region=${region} `);
-    const url = getUrl(initEndpoint, peerId, region);
+    const url = getUrl(initEndpoint, peerId, userAgent, region);
     try {
       const response = await fetch(url, {
         headers: {
@@ -49,7 +54,7 @@ export default class InitService {
   }
 }
 
-export function getUrl(endpoint: string, peerId: string, region?: string) {
+export function getUrl(endpoint: string, peerId: string, userAgent: string, region?: string) {
   try {
     const url = new URL('/init', endpoint);
 
@@ -57,7 +62,7 @@ export function getUrl(endpoint: string, peerId: string, region?: string) {
       url.searchParams.set('region', region.trim());
     }
     url.searchParams.set('peer_id', peerId);
-    url.searchParams.set('user_agent', userAgent);
+    url.searchParams.set('user_agent_v2', userAgent);
     return url.toString();
   } catch (err) {
     const error = err as Error;
