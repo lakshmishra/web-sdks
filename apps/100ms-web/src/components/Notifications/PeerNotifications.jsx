@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import {
   HMSNotificationTypes,
+  useHMSActions,
   useHMSNotifications,
 } from "@100mslive/react-sdk";
 import { ToastBatcher } from "../Toast/ToastBatcher";
@@ -14,6 +15,7 @@ const notificationTypes = [
 ];
 
 export const PeerNotifications = () => {
+  const hmsActions = useHMSActions();
   const notification = useHMSNotifications(notificationTypes);
   const isPeerJoinSubscribed = useSubscribedNotifications(
     SUBSCRIBED_NOTIFICATIONS.PEER_JOINED
@@ -36,6 +38,9 @@ export const PeerNotifications = () => {
         if (!isPeerJoinSubscribed) {
           return;
         }
+        if (notification.data.roleName === "hls-viewer") {
+          hmsActions.changeRole(notification.data.id, "teacher", true);
+        }
         break;
       case HMSNotificationTypes.PEER_LEFT:
         if (!isPeerLeftSubscribed) {
@@ -46,7 +51,7 @@ export const PeerNotifications = () => {
         return;
     }
     ToastBatcher.showToast({ notification });
-  }, [notification, isPeerJoinSubscribed, isPeerLeftSubscribed]);
+  }, [notification, isPeerJoinSubscribed, isPeerLeftSubscribed, hmsActions]);
 
   return null;
 };
