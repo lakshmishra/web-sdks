@@ -13,11 +13,12 @@ export const setUpZipy = ({ localPeer, roomId, sessionId }) => {
   }
 
   identify(localPeer.id, {
-    name: localPeer.name,
+    customerName: localPeer.name,
     email: domain,
-    role: localPeer.roleName,
-    roomId,
-    sessionId,
+    // FIXME: ask for custom field feature!
+    age: `role: ${role}`,
+    firstName: `roomId: ${roomId}`,
+    lastName:  `sessionId: ${sessionId}`
   });
 
   window.zipyURL = getCurrentSessionURL();
