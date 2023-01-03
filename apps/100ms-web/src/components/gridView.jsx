@@ -26,7 +26,7 @@ export const GridCenterView = ({ peers, maxTileCount }) => {
         }}
       >
         {peers && peers.length > 0 ? (
-          <VideoList peers={peers} maxRowCount={4} maxColCount={5} />
+          <VideoList peers={peers} maxTileCount={12} maxColCount={5} />
         ) : eventRoomIDs.some(id => window.location.href.includes(id)) ? (
           <Box
             css={{
