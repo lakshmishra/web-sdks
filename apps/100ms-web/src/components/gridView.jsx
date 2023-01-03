@@ -1,11 +1,8 @@
 import React, { Fragment } from "react";
-import { useMedia } from "react-use";
-import { Box, config as cssConfig, Flex } from "@100mslive/react-ui";
+import { Box, Flex } from "@100mslive/react-ui";
 import { FirstPersonDisplay } from "./FirstPersonDisplay";
 import { Image } from "./Image";
 import VideoList from "./VideoList";
-
-const MAX_TILES_FOR_MOBILE = 4;
 
 /**
  * the below variables are for showing webinar etc. related image if required on certain meeting urls
@@ -18,8 +15,6 @@ const webinarInfoLink = webinarProps?.LINK_HREF || "https://100ms.live/";
 
 // The center of the screen shows bigger tiles
 export const GridCenterView = ({ peers, maxTileCount }) => {
-  const mediaQueryLg = cssConfig.media.md;
-  const limitMaxTiles = useMedia(mediaQueryLg);
   return (
     <Fragment>
       <Box
@@ -31,10 +26,7 @@ export const GridCenterView = ({ peers, maxTileCount }) => {
         }}
       >
         {peers && peers.length > 0 ? (
-          <VideoList
-            peers={peers}
-            maxTileCount={limitMaxTiles ? MAX_TILES_FOR_MOBILE : maxTileCount}
-          />
+          <VideoList peers={peers} maxRowCount={4} maxColCount={5} />
         ) : eventRoomIDs.some(id => window.location.href.includes(id)) ? (
           <Box
             css={{
