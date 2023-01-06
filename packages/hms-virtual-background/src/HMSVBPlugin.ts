@@ -100,10 +100,10 @@ export class HMSVBPlugin implements HMSVideoPlugin {
         this.background.crossOrigin = 'anonymous';
         this.background.muted = true;
         this.background.loop = true;
-        this.background.autoplay = true;
         this.background.playsInline = true;
         this.background.oncanplaythrough = () => {
           this.backgroundType = HMSVirtualBackgroundTypes.VIDEO;
+          (this.background as HTMLVideoElement).play();
         };
         break;
       case HMSVirtualBackgroundTypes.CANVAS:
