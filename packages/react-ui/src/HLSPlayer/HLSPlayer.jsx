@@ -225,3 +225,14 @@ export const HLSPlayer = ({
     </Flex>
   );
 };
+/*
+1. Wrappers for controllers
+2. Error handling to analytics
+3. Event Handling
+
+Web component
+1. PIP
+2. <GridLayout />
+3. Player
+
+*/
