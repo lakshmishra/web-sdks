@@ -31,7 +31,9 @@ export class AudioContextManager {
     }
     this.destinationNode = this.audioContext.createMediaStreamDestination();
     this.source.connect(this.destinationNode);
-    return this.destinationNode.stream.getAudioTracks()[0];
+    const track = this.destinationNode.stream.getAudioTracks()[0];
+    track.contentHint = 'music';
+    return track;
   }
 
   cleanup() {
