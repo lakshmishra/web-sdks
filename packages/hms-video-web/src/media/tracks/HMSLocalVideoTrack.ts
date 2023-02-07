@@ -271,6 +271,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
   private async replaceTrackWith(settings: HMSVideoTrackSettings) {
     const prevTrack = this.nativeTrack;
     const newTrack = await getVideoTrack(settings);
+    newTrack.contentHint = this.source === 'screen' ? 'detail' : 'motion';
     /*
      * stop the previous only after acquiring the new track otherwise this can lead to
      * no video(black tile) when the above getAudioTrack throws an error. ex: DeviceInUse error

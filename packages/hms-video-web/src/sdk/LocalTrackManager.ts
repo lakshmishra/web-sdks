@@ -314,6 +314,9 @@ export class LocalTrackManager {
         audio: settings.audio ? settings.audio.toConstraints() : false,
         video: settings.video ? settings.video.toConstraints() : false,
       });
+      stream.getVideoTracks().forEach(track => {
+        track.contentHint = 'motion';
+      });
 
       return stream.getVideoTracks().concat(stream.getAudioTracks());
     } catch (error) {

@@ -157,6 +157,7 @@ export default abstract class HMSConnection {
     }
   }
 
+  // eslint-disable-next-line complexity
   async setMaxBitrateAndFramerate(track: HMSLocalTrack) {
     const maxBitrate = track.settings.maxBitrate;
     const maxFramerate = track instanceof HMSLocalVideoTrack && track.settings.maxFramerate;
@@ -172,6 +173,9 @@ export default abstract class HMSConnection {
           // @ts-ignore
           params.encodings[0].maxFramerate = maxFramerate;
         }
+      }
+      if (track.type === 'video') {
+        params.degradationPreference = track.source === 'screen' ? 'maintain-resolution' : 'maintain-framerate';
       }
       await sender.setParameters(params);
     } else {
