@@ -515,9 +515,6 @@ function findBestFitLayout({
   // brute force from 1 column(and n rows) to n columns(and 1 row)
   for (let cols = 1; cols <= n; cols++) {
     const rows = Math.ceil(n / cols);
-    if (rows * cols !== n) {
-      continue;
-    }
     // now that we have number of rows and columns, there are two ways to stack the tiles,
     // - to use the full width(dividing the width evenly between cols)
     // - to use the full height(dividing the height evenly between rows)
