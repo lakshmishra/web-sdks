@@ -2,13 +2,7 @@ import React, { useMemo } from 'react';
 import { useResizeDetector } from 'react-resize-detector';
 import { HMSPeer, HMSTrack, HMSTrackID, selectTracksMap } from '@100mslive/hms-video-store';
 import { useHMSVanillaStore } from '../primitives/HmsRoomProvider';
-import {
-  calculateLayoutSizes,
-  chunkElements,
-  getModeAspectRatio,
-  getVideoTracksFromPeers,
-  TrackWithPeer,
-} from '../utils/layout';
+import { chunkElementsWithLayout, getModeAspectRatio, getVideoTracksFromPeers, TrackWithPeer } from '../utils/layout';
 
 export interface useVideoListInput {
   /**
@@ -19,14 +13,6 @@ export interface useVideoListInput {
    * Max tiles in a  page. Overrides maxRowCount and maxColCount
    */
   maxTileCount?: number;
-  /**
-   * Max rows in a  page. Only applied if maxTileCount is not present
-   */
-  maxRowCount?: number;
-  /**
-   * Max columns in a  page. Only applied if maxTileCount and maxRowCount are not present
-   */
-  maxColCount?: number;
   /**
    * A function which tells whether to show the screenshare for a peer who is sharing their screen. A peer is passed
    * and a boolean value is expected.
@@ -66,6 +52,10 @@ export interface useVideoResult {
    * space/dimensions in order to calculate the best fit
    */
   ref: React.MutableRefObject<any>;
+  rows: number;
+  cols: number;
+  lastPageRows: number;
+  lastPageCols: number;
 }
 
 const DEFAULTS = {
@@ -84,8 +74,6 @@ const DEFAULTS = {
 export const useVideoList = ({
   peers,
   maxTileCount,
-  maxColCount,
-  maxRowCount,
   includeScreenShareForPeer = () => false,
   aspectRatio = DEFAULTS.aspectRatio,
   filterNonPublishingPeers = true,
@@ -113,50 +101,24 @@ export const useVideoList = ({
     };
   }, [aspectRatio, tracksWithPeer]);
   const count = tracksWithPeer.length;
-  const {
-    tilesInFirstPage,
-    defaultWidth,
-    defaultHeight,
-    lastPageWidth,
-    lastPageHeight,
-    isLastPageDifferentFromFirstPage,
-  } = useMemo(
+  const { chunkedTracksWithPeer, rows, cols, lastPageRows, lastPageCols } = useMemo(
     () =>
-      calculateLayoutSizes({
-        count,
+      chunkElementsWithLayout<TrackWithPeer>({
+        tiles: count,
         parentWidth: Math.floor(width),
         parentHeight: Math.floor(height) - Math.min(height, offsetY),
-        maxTileCount,
-        maxRowCount,
-        maxColCount,
-        aspectRatio: finalAspectRatio,
-      }),
-    [count, width, height, maxTileCount, maxRowCount, maxColCount, finalAspectRatio, offsetY],
-  );
-  const chunkedTracksWithPeer = useMemo(
-    () =>
-      chunkElements<TrackWithPeer>({
+        maxTileCount: maxTileCount!,
+        aspectRatio: finalAspectRatio.width / finalAspectRatio.height,
         elements: tracksWithPeer,
-        tilesInFirstPage,
-        onlyOnePage: false,
-        isLastPageDifferentFromFirstPage,
-        defaultWidth,
-        defaultHeight,
-        lastPageWidth,
-        lastPageHeight,
       }),
-    [
-      tracksWithPeer,
-      tilesInFirstPage,
-      isLastPageDifferentFromFirstPage,
-      defaultWidth,
-      defaultHeight,
-      lastPageWidth,
-      lastPageHeight,
-    ],
+    [count, finalAspectRatio.height, finalAspectRatio.width, height, maxTileCount, offsetY, tracksWithPeer, width],
   );
   return {
     pagesWithTiles: chunkedTracksWithPeer,
+    rows,
+    cols,
+    lastPageRows,
+    lastPageCols,
     ref,
   };
 };

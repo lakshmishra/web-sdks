@@ -493,3 +493,138 @@ export const getClosestLayer = ({
   }
   return closestLayer!;
 };
+
+function findBestFitLayout({
+  containerHeight,
+  containerWidth,
+  numTiles: n,
+  aspectRatio,
+}: {
+  containerHeight: number;
+  containerWidth: number;
+  numTiles: number;
+  aspectRatio: number;
+}) {
+  let result = { rows: 0, cols: 0, height: 0, width: 0 };
+  if (n <= 0 || containerWidth <= 0 || containerHeight <= 0) {
+    return result;
+  }
+  aspectRatio = aspectRatio || 1; // if not passed assume square
+  let bestArea = 0; // area = tileWidth * tileHeight
+
+  // brute force from 1 column(and n rows) to n columns(and 1 row)
+  for (let cols = 1; cols <= n; cols++) {
+    const rows = Math.ceil(n / cols);
+    if (rows * cols !== n) {
+      continue;
+    }
+    // now that we have number of rows and columns, there are two ways to stack the tiles,
+    // - to use the full width(dividing the width evenly between cols)
+    // - to use the full height(dividing the height evenly between rows)
+    // we'll try with first, and if it's not possible we'll go with second
+
+    // tile width and height if we use the full container width
+    let width = Math.floor(containerWidth / cols);
+    let height = Math.floor(width / aspectRatio);
+
+    // max height possible is when the total height is divided equally between the rows
+    const maxHeightPossible = Math.floor(containerHeight / rows);
+    if (height > maxHeightPossible) {
+      // using full width is not possible for given number of columns, use full height instead
+      height = maxHeightPossible;
+      width = Math.floor(maxHeightPossible * aspectRatio);
+    }
+    const tileArea = width * height;
+    if (tileArea > bestArea) {
+      bestArea = tileArea;
+      result = { rows, cols, height, width };
+    }
+  }
+
+  return result;
+}
+
+export const calculateLayout = ({
+  parentWidth,
+  parentHeight,
+  aspectRatio,
+  tiles,
+  maxTileCount,
+}: {
+  parentWidth: number;
+  parentHeight: number;
+  aspectRatio: number;
+  tiles: number;
+  maxTileCount: number;
+}) => {
+  let lastPageRows = 0;
+  let lastPageCols = 0;
+  let lastPageWidth = 0;
+  let lastPageHeight = 0;
+  const tilesPerPage = Math.min(tiles, maxTileCount);
+  const { rows, cols, height, width } = findBestFitLayout({
+    containerWidth: parentWidth,
+    containerHeight: parentHeight,
+    aspectRatio,
+    numTiles: tilesPerPage,
+  });
+  const tilesForlastPage = tiles % (rows * cols);
+  if (tilesForlastPage > 0) {
+    const result = findBestFitLayout({
+      containerWidth: parentWidth,
+      containerHeight: parentHeight,
+      aspectRatio,
+      numTiles: tilesPerPage,
+    });
+    lastPageRows = result.rows;
+    lastPageCols = result.cols;
+    lastPageWidth = result.width;
+    lastPageHeight = result.height;
+  }
+  return {
+    defaultWidth: width,
+    defaultHeight: height,
+    rows,
+    cols,
+    lastPageWidth,
+    lastPageHeight,
+    lastPageCols,
+    lastPageRows,
+  };
+};
+
+export const chunkElementsWithLayout = <T>({
+  elements,
+  ...rest
+}: {
+  parentWidth: number;
+  parentHeight: number;
+  aspectRatio: number;
+  tiles: number;
+  maxTileCount: number;
+  elements: T[];
+}): {
+  chunkedTracksWithPeer: (T & { width: number; height: number })[][];
+  rows: number;
+  cols: number;
+  lastPageRows: number;
+  lastPageCols: number;
+} => {
+  const { rows, cols, lastPageRows, lastPageCols, lastPageWidth, lastPageHeight, defaultWidth, defaultHeight } =
+    calculateLayout(rest);
+  const chunks: T[][] = chunk<T>(elements, rows * cols, rows * cols >= rest.tiles);
+  return {
+    chunkedTracksWithPeer: chunks.map((ch, page) =>
+      ch.map(element => {
+        const isLastPage: boolean = page === chunks.length - 1;
+        const width = (isLastPage ? lastPageWidth : 0) || defaultWidth;
+        const height = (isLastPage ? lastPageHeight : 0) || defaultHeight;
+        return { ...element, height, width };
+      }),
+    ),
+    rows,
+    cols,
+    lastPageRows,
+    lastPageCols,
+  };
+};
