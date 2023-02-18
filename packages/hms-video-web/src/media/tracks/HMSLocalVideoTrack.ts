@@ -12,6 +12,7 @@ import { HMSVideoPluginsManager } from '../../plugins/video';
 import { LocalTrackManager } from '../../sdk/LocalTrackManager';
 import HMSLogger from '../../utils/logger';
 import { getVideoTrack } from '../../utils/track';
+import { backgroundRemoval } from '../../utils/vbutils';
 import { HMSVideoTrackSettings, HMSVideoTrackSettingsBuilder } from '../settings';
 import HMSLocalStream from '../streams/HMSLocalStream';
 
@@ -271,7 +272,8 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
    */
   private async replaceTrackWith(settings: HMSVideoTrackSettings) {
     const prevTrack = this.nativeTrack;
-    const newTrack = await getVideoTrack(settings);
+    let newTrack = await getVideoTrack(settings);
+    newTrack = backgroundRemoval(newTrack);
     /*
      * stop the previous only after acquiring the new track otherwise this can lead to
      * no video(black tile) when the above getAudioTrack throws an error. ex: DeviceInUse error
