@@ -26,13 +26,16 @@ export const backgroundRemoval = (videoTrack: MediaStreamTrack) => {
   //@ts-ignore
   const trackGenerator = new MediaStreamTrackGenerator({ kind: 'video' });
 
+  let counter = 0;
   // transform function
   const transformer = new TransformStream({
     async transform(videoFrame, controller) {
       // we send the video frame to MediaPipe
       videoFrame.width = videoFrame.displayWidth;
       videoFrame.height = videoFrame.displayHeight;
-      await selfieSegmentation.send({ image: videoFrame });
+      if (counter % 2) {
+        await selfieSegmentation.send({ image: videoFrame });
+      }
 
       // we create a new videoFrame
       const timestamp = videoFrame.timestamp;
@@ -42,6 +45,7 @@ export const backgroundRemoval = (videoTrack: MediaStreamTrack) => {
       // we close the current videoFrame and queue the new one
       videoFrame.close();
       controller.enqueue(newFrame);
+      counter++;
     },
   });
   trackProcessor.readable.pipeThrough(transformer).pipeTo(trackGenerator.writable);
