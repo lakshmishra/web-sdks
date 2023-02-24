@@ -78,7 +78,7 @@ export const GridSidePaneView = ({ peers }) => {
     >
       <Flex css={{ flex: "1 1 0" }} align="end">
         {peers && peers.length > 0 && (
-          <VideoList peers={peers} maxColCount={2} />
+          <VideoList peers={peers} maxTileCount={6} />
         )}
       </Flex>
     </Flex>
