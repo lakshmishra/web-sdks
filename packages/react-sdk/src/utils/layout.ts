@@ -249,7 +249,7 @@ export const calculateLayout = ({
   let lastPageCols = 0;
   let lastPageWidth = 0;
   let lastPageHeight = 0;
-  const tilesPerPage = maxTileCount;
+  const tilesPerPage = Math.min(tiles, maxTileCount);
   const { rows, cols, height, width } = findBestFitLayout({
     containerWidth: parentWidth,
     containerHeight: parentHeight,
