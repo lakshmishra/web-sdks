@@ -57,6 +57,9 @@ export const useHLSViewerRole = () => {
   return useHMSStore(selectAppData(APP_DATA.hlsViewerRole));
 };
 
+export const useWaitingViewerRole = () => {
+  return useHMSStore(selectAppData(APP_DATA.waitingViewerRole));
+};
 export const useIsHLSStartedFromUI = () => {
   return useHMSStore(selectAppData(APP_DATA.hlsStarted));
 };
@@ -94,6 +97,22 @@ export const useSetSubscribedNotifications = notificationKey => {
   const setValue = useSetAppData({
     key1: APP_DATA.subscribedNotifications,
     key2: notificationKey,
+  });
+  return [value, setValue];
+};
+
+export const useSubscribeChatSelector = chatSelectorKey => {
+  const chatSelectorPreference = useHMSStore(
+    selectAppDataByPath(APP_DATA.chatSelector, chatSelectorKey)
+  );
+  return chatSelectorPreference;
+};
+
+export const useSetSubscribedChatSelector = chatSelectorKey => {
+  const value = useSubscribeChatSelector(chatSelectorKey);
+  const setValue = useSetAppData({
+    key1: APP_DATA.chatSelector,
+    key2: chatSelectorKey,
   });
   return [value, setValue];
 };

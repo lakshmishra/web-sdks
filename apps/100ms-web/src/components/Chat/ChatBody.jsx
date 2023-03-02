@@ -2,6 +2,7 @@ import React, {
   Fragment,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -29,6 +30,7 @@ import {
   Text,
   Tooltip,
 } from "@100mslive/react-ui";
+import { useSetPinnedMessage } from "../hooks/useSetPinnedMessage";
 
 const formatTime = date => {
   if (!(date instanceof Date)) {
@@ -281,111 +283,126 @@ const ChatMessage = React.memo(
     );
   }
 );
-const VirtualizedChatMessages = ({ messages, setPinnedMessage }) => {
-  const listRef = useRef({});
-  const rowHeights = useRef({});
-  function getRowHeight(index) {
-    // 72 will be default row height for any message length
-    // 16 will add margin value as clientHeight don't include margin
-    return rowHeights.current[index] + 16 || 72;
-  }
+const ChatList = React.forwardRef(
+  (
+    { width, height, setRowHeight, getRowHeight, messages, scrollToBottom },
+    listRef
+  ) => {
+    const { setPinnedMessage } = useSetPinnedMessage();
+    useLayoutEffect(() => {
+      if (listRef.current && listRef.current.scrollToItem) {
+        scrollToBottom(1);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [listRef]);
 
-  const setRowHeight = useCallback((index, size) => {
-    listRef.current.resetAfterIndex(0);
-    rowHeights.current = { ...rowHeights.current, [index]: size };
-  }, []);
-
-  const scrollToBottom = useCallback(() => {
-    if (listRef.current && listRef.current.scrollToItem) {
-      listRef.current?.scrollToItem(messages.length - 1, "end");
-      requestAnimationFrame(() => {
-        listRef.current?.scrollToItem(messages.length - 1, "end");
-      });
-    }
-  }, [messages.length]);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-      setTimeout(() => {
-        scrollToBottom();
-      }, 0);
-    }
-  }, [messages.length, scrollToBottom]);
-
-  return (
-    <Box
-      css={{
-        mr: "-$10",
-        h: "100%",
-      }}
-      as="div"
-    >
-      <AutoSizer
-        style={{
-          width: "90%",
-          height: "100%",
-        }}
-      >
-        {({ height, width }) => (
-          <VariableSizeList
-            ref={listRef}
-            itemCount={messages.length}
-            itemSize={getRowHeight}
-            width={width}
-            height={height}
-            style={{
-              overflowX: "hidden",
-            }}
-          >
-            {({ index, style }) => (
-              <ChatMessage
-                style={style}
-                index={index}
-                key={messages[index].id}
-                message={messages[index]}
-                setRowHeight={setRowHeight}
-                onPin={() => setPinnedMessage(messages[index])}
-              />
-            )}
-          </VariableSizeList>
-        )}
-      </AutoSizer>
-    </Box>
-  );
-};
-
-export const ChatBody = ({ role, peerId, setPinnedMessage }) => {
-  const storeMessageSelector = role
-    ? selectMessagesByRole(role)
-    : peerId
-    ? selectMessagesByPeerID(peerId)
-    : selectHMSMessages;
-  const messages = useHMSStore(storeMessageSelector) || [];
-
-  if (messages.length === 0) {
     return (
-      <Flex
-        css={{
-          width: "100%",
-          height: "calc(100% - 1px)",
-          textAlign: "center",
-          px: "$4",
+      <VariableSizeList
+        ref={listRef}
+        itemCount={messages.length}
+        itemSize={getRowHeight}
+        width={width}
+        height={height - 1}
+        style={{
+          overflowX: "hidden",
         }}
-        align="center"
-        justify="center"
       >
-        <Text>There are no messages here</Text>
-      </Flex>
+        {({ index, style }) => (
+          <ChatMessage
+            style={style}
+            index={index}
+            key={messages[index].id}
+            message={messages[index]}
+            setRowHeight={setRowHeight}
+            onPin={() => setPinnedMessage(messages[index])}
+          />
+        )}
+      </VariableSizeList>
     );
   }
+);
+const VirtualizedChatMessages = React.forwardRef(
+  ({ messages, setPinnedMessage, scrollToBottom }, listRef) => {
+    const rowHeights = useRef({});
 
-  return (
-    <Fragment>
-      <VirtualizedChatMessages
-        messages={messages}
-        setPinnedMessage={setPinnedMessage}
-      />
-    </Fragment>
-  );
-};
+    function getRowHeight(index) {
+      // 72 will be default row height for any message length
+      // 16 will add margin value as clientHeight don't include margin
+      return rowHeights.current[index] + 16 || 72;
+    }
+
+    const setRowHeight = useCallback(
+      (index, size) => {
+        listRef.current.resetAfterIndex(0);
+        rowHeights.current = { ...rowHeights.current, [index]: size };
+      },
+      [listRef]
+    );
+
+    return (
+      <Box
+        css={{
+          mr: "-$10",
+          h: "100%",
+        }}
+        as="div"
+      >
+        <AutoSizer
+          style={{
+            width: "90%",
+          }}
+        >
+          {({ height, width }) => (
+            <ChatList
+              width={width}
+              height={height}
+              messages={messages}
+              setRowHeight={setRowHeight}
+              getRowHeight={getRowHeight}
+              scrollToBottom={scrollToBottom}
+              ref={listRef}
+            />
+          )}
+        </AutoSizer>
+      </Box>
+    );
+  }
+);
+
+export const ChatBody = React.forwardRef(
+  ({ role, peerId, scrollToBottom }, listRef) => {
+    const storeMessageSelector = role
+      ? selectMessagesByRole(role)
+      : peerId
+      ? selectMessagesByPeerID(peerId)
+      : selectHMSMessages;
+    const messages = useHMSStore(storeMessageSelector) || [];
+
+    if (messages.length === 0) {
+      return (
+        <Flex
+          css={{
+            width: "100%",
+            height: "100%",
+            textAlign: "center",
+            px: "$4",
+          }}
+          align="center"
+          justify="center"
+        >
+          <Text>There are no messages here</Text>
+        </Flex>
+      );
+    }
+
+    return (
+      <Fragment>
+        <VirtualizedChatMessages
+          messages={messages}
+          scrollToBottom={scrollToBottom}
+          ref={listRef}
+        />
+      </Fragment>
+    );
+  }
+);
