@@ -26,7 +26,7 @@ export class PlaylistVideoManager extends TypedEventEmitter<{ ended: null; progr
   private timer: any;
   private tracks: MediaStreamTrack[] = [];
   private audioContextManager!: AudioContextManager;
-  private DEFAUL_FPS = 24;
+  // private DEFAUL_FPS = 24;
   // This is to handle video playing when seekTo is called when video is paused
   private seeked = false;
 
@@ -57,19 +57,22 @@ export class PlaylistVideoManager extends TypedEventEmitter<{ ended: null; progr
           if (this.tracks.length === 0) {
             this.clearCanvasAndTracks();
             //@ts-ignore
-            const stream = this.canvas.captureStream();
+            const stream = this.videoElement.captureStream();
+            //@ts-ignore
+            // stream.requestFrame();
             if (!stream) {
               HMSLogger.e(this.TAG, 'Browser does not support captureStream');
               return;
             }
-            this.videoElement.onplay = this.drawImage;
+            // this.videoElement.requestVideoFrameCallback(this.drawImage);
             await this.audioContextManager.resumeContext();
-            await this.videoElement.play();
             const audioTrack = this.audioContextManager.getAudioTrack();
             stream.addTrack(audioTrack);
             stream.getTracks().forEach((track: MediaStreamTrack) => {
               this.tracks.push(track);
             });
+            // this.videoElement.onplay = this.drawImage;
+            await this.videoElement.play();
             resolve(this.tracks);
           } else {
             // No need to capture canvas stream/get audio track. They wull be auto updated
@@ -118,14 +121,17 @@ export class PlaylistVideoManager extends TypedEventEmitter<{ ended: null; progr
     clearTimeout(this.timer);
   }
 
-  private drawImage = () => {
-    if (this.videoElement && !this.videoElement.paused && !this.videoElement.ended) {
-      this.canvasContext?.drawImage(this.videoElement, 0, 0, this.canvas?.width, this.canvas?.height);
-      this.timer = setTimeout(() => {
-        this.drawImage();
-      }, 1000 / this.DEFAUL_FPS);
-    }
-  };
+  // private drawImage = () => {
+  //   if (this.videoElement && !this.videoElement.paused && !this.videoElement.ended) {
+  //     this.canvasContext?.drawImage(this.videoElement, 0, 0, this.canvas?.width, this.canvas?.height);
+  //     console.log('canvas update');
+  //     // this.videoElement.requestVideoFrameCallback(this.drawImage);
+  //     this.timer = setTimeout(() => {
+  //       (this.tracks.find(track => track.kind === 'video') as CanvasCaptureMediaStreamTrack).requestFrame();
+  //       this.drawImage();
+  //     }, 1000 / 30);
+  //   }
+  // };
 
   private getVideoElement() {
     if (this.videoElement) {

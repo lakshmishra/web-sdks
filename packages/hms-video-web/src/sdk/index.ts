@@ -632,7 +632,7 @@ export class HMSSdk implements HMSInterface {
 
     const TrackKlass = type === 'audio' ? HMSLocalAudioTrack : HMSLocalVideoTrack;
     const hmsTrack = new TrackKlass(stream, track, source, this.eventBus);
-    this.setPlaylistSettings({
+    await this.setPlaylistSettings({
       track,
       hmsTrack,
       source,
