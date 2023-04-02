@@ -25,18 +25,11 @@ import { HLS_TIMED_METADATA_DOC_URL } from "../common/constants";
 init({ data });
 const emojiReactionList = [
   [
-    { emojiId: "+1" },
-    { emojiId: "-1" },
-    { emojiId: "wave" },
-    { emojiId: "clap" },
-    { emojiId: "fire" },
-  ],
-  [
+    { emojiId: "sparkles" },
     { emojiId: "tada" },
-    { emojiId: "heart_eyes" },
     { emojiId: "joy" },
-    { emojiId: "open_mouth" },
     { emojiId: "sob" },
+    { emojiId: "heart_eyes" },
   ],
 ];
 
