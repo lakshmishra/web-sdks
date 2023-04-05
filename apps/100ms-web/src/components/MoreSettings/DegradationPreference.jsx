@@ -1,21 +1,19 @@
 import React from "react";
-import { useMedia } from "react-use";
 import { selectIsAllowedToPublish, useHMSStore } from "@100mslive/react-sdk";
 import { ArrowRightIcon, CheckIcon, PersonIcon } from "@100mslive/react-icons";
-import { config, Dropdown, Text } from "@100mslive/react-ui";
+import { Dropdown, Text } from "@100mslive/react-ui";
 
 const getParams = () => {
   return window.__hms.sdk.localPeer.videoTrack?.transceiver?.sender?.getParameters();
 };
 
 export const DegradationPreference = () => {
-  const hideTriggerItem = useMedia(config.media.sm);
   const isAllowedToPublish = useHMSStore(selectIsAllowedToPublish);
   if (!isAllowedToPublish.video) {
     return null;
   }
 
-  return hideTriggerItem ? null : (
+  return (
     <Dropdown.SubMenu>
       <Dropdown.TriggerItem data-testid="change_my_role_btn">
         <PersonIcon />
