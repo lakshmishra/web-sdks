@@ -161,7 +161,6 @@ export default abstract class HMSConnection {
     }
   }
 
-  // eslint-disable-next-line complexity
   async setMaxBitrateAndFramerate(track: HMSLocalTrack) {
     const maxBitrate = track.settings.maxBitrate;
     const maxFramerate = track instanceof HMSLocalVideoTrack && track.settings.maxFramerate;
@@ -176,9 +175,6 @@ export default abstract class HMSConnection {
         if (maxFramerate) {
           // @ts-ignore
           params.encodings[0].maxFramerate = maxFramerate;
-        }
-        if (track.source === 'regular') {
-          params.degradationPreference = 'maintain-resolution';
         }
       }
       await sender.setParameters(params);
