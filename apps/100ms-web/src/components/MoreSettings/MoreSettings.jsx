@@ -38,6 +38,7 @@ import { StatsForNerds } from "../StatsForNerds";
 import { BulkRoleChangeModal } from "./BulkRoleChangeModal";
 import { ChangeNameModal } from "./ChangeNameModal";
 import { ChangeSelfRole } from "./ChangeSelfRole";
+import { DegradationPreference } from "./DegradationPreference";
 import { EmbedUrl, EmbedUrlModal } from "./EmbedUrl";
 import { FullScreenItem } from "./FullScreenItem";
 import { MuteAllModal } from "./MuteAllModal";
@@ -105,6 +106,7 @@ export const MoreSettings = () => {
             </Text>
           </Dropdown.Item>
           <ChangeSelfRole onClick={() => setShowSelfRoleChange(true)} />
+          <DegradationPreference />
           {permissions?.changeRole && (
             <Dropdown.Item
               onClick={() => setShowBulkRoleChange(true)}
