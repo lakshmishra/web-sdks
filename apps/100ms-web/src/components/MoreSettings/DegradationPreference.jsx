@@ -1,5 +1,6 @@
 import React from "react";
 import { useMedia } from "react-use";
+import { selectIsAllowedToPublish, useHMSStore } from "@100mslive/react-sdk";
 import { ArrowRightIcon, CheckIcon, PersonIcon } from "@100mslive/react-icons";
 import { config, Dropdown, Text } from "@100mslive/react-ui";
 
@@ -9,6 +10,10 @@ const getParams = () => {
 
 export const DegradationPreference = () => {
   const hideTriggerItem = useMedia(config.media.sm);
+  const isAllowedToPublish = useHMSStore(selectIsAllowedToPublish);
+  if (!isAllowedToPublish.video) {
+    return null;
+  }
 
   return hideTriggerItem ? null : (
     <Dropdown.SubMenu>
