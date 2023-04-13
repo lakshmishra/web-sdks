@@ -58,6 +58,7 @@ const PreviewJoin = ({
       isAudioMuted: false,
       isVideoMuted: false,
       speakerAutoSelectionBlacklist: ["Yeti Stereo Microphone"],
+      videoDeviceId: "someRandomId",
     },
     captureNetworkQualityInPreview: true,
     handleError: (_, method) => {
