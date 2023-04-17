@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useRef } from "react";
 import Draggable from "react-draggable";
 import { useMedia } from "react-use";
 import {
@@ -12,6 +12,7 @@ import { Box, config as cssConfig, Flex } from "@100mslive/react-ui";
 import { FirstPersonDisplay } from "../components/FirstPersonDisplay";
 import VideoTile from "../components/VideoTile";
 import { useRolePreference } from "../components/hooks/useFeatures";
+import { getClosestPoint } from "../common/utils";
 import { APP_DATA } from "../common/constants";
 
 const getAspectRatio = ({ roleMap, roleName, isMobile }) => {
@@ -37,6 +38,10 @@ export function InsetView() {
       } else {
         sidepanePeers.push(peer);
       }
+    }
+    if (centerPeers.length === 0 && sidepanePeers.length > 0) {
+      centerPeers = sidepanePeers;
+      sidepanePeers = [];
     }
   } else {
     centerPeers = remotePeers;
@@ -146,18 +151,69 @@ export function InsetView() {
           </Flex>
         )}
       </Box>
-      {!hideInset && <InsetTile roleMap={roleMap} isMobile={isMobile} />}
+      {!hideInset && (
+        <InsetTile
+          roleMap={roleMap}
+          isMobile={isMobile}
+          isLandscape={isLandscape}
+        />
+      )}
     </Fragment>
   );
 }
 
-const InsetTile = ({ isMobile, roleMap }) => {
+const InsetTile = ({ isMobile, roleMap, isLandscape }) => {
   const localPeer = useHMSStore(selectLocalPeer);
   const sidepane = useHMSStore(selectAppData(APP_DATA.sidePane));
+  const aspectRatio = getAspectRatio({
+    roleMap,
+    roleName: localPeer.roleName,
+    isMobile,
+  });
+  let height = 180;
+  let width = height * aspectRatio;
+  if (isLandscape && width > 240) {
+    width = 240;
+    height = width / aspectRatio;
+  }
+  const nodeRef = useRef(null);
+
+  const handleStop = (_, data) => {
+    const { x, y, node } = data;
+    const [closerX, closerY] = getClosestPoint({ x, y, node });
+    node.style.transform = `translate(
+      ${closerX}px, 
+      ${closerY}px
+    )`;
+  };
+
+  useEffect(() => {
+    if (!nodeRef.current || !window.ResizeObserver) {
+      return;
+    }
+    const node = nodeRef.current;
+    const resizeObserver = new ResizeObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.target === node.parentElement) {
+          const [closerX, closerY] = getClosestPoint({ node });
+          node.style.transform = `translate(
+            ${closerX}px, 
+            ${closerY}px
+            )`;
+        }
+      });
+    });
+    resizeObserver.observe(node.parentElement);
+    return () => {
+      node?.parentElement && resizeObserver?.unobserve(node.parentElement);
+      resizeObserver?.disconnect();
+    };
+  }, []);
 
   return (
-    <Draggable bounds="parent">
+    <Draggable bounds="parent" nodeRef={nodeRef} onStop={handleStop}>
       <Box
+        ref={nodeRef}
         css={{
           position: "absolute",
           bottom: 0,
@@ -165,12 +221,8 @@ const InsetTile = ({ isMobile, roleMap }) => {
           mr: sidepane ? "$14" : 0,
           boxShadow: "0 0 8px 0 rgba(0,0,0,0.3)",
           zIndex: 10,
-          aspectRatio: getAspectRatio({
-            roleMap,
-            roleName: localPeer.roleName,
-            isMobile,
-          }),
-          h: 180,
+          aspectRatio: aspectRatio,
+          h: height,
         }}
       >
         <VideoTile
@@ -183,6 +235,8 @@ const InsetTile = ({ isMobile, roleMap }) => {
           containerCSS={{
             bg: "$surfaceDefault",
           }}
+          width={width}
+          height={height}
         />
       </Box>
     </Draggable>

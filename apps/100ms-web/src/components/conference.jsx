@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { usePrevious } from "react-use";
 import {
   HMSRoomState,
-  parsedUserAgent,
   selectAppData,
   selectIsConnectedToRoom,
   selectRoomState,
@@ -18,7 +17,7 @@ import { Header } from "./Header";
 import { RoleChangeRequestModal } from "./RoleChangeRequestModal";
 import { useIsHeadless } from "./AppData/useUISettings";
 import { useNavigation } from "./hooks/useNavigation";
-import { APP_DATA, isAndroid, isIOS } from "../common/constants";
+import { APP_DATA, isAndroid, isIOS, isIPadOS } from "../common/constants";
 
 const Conference = () => {
   const navigate = useNavigation();
@@ -30,15 +29,11 @@ const Conference = () => {
   const hmsActions = useHMSActions();
   const [hideControls, setHideControls] = useState(false);
   const dropdownList = useHMSStore(selectAppData(APP_DATA.dropdownList));
+  const headerRef = useRef();
+  const footerRef = useRef();
   const dropdownListRef = useRef();
   dropdownListRef.current = dropdownList;
-  const performAutoHide = hideControls && (isAndroid || isIOS);
-  console.log(
-    performAutoHide,
-    isAndroid,
-    isIOS,
-    parsedUserAgent.getOS()?.name?.toLowerCase()
-  );
+  const performAutoHide = hideControls && (isAndroid || isIOS || isIPadOS);
 
   useEffect(() => {
     let timeout = null;
@@ -100,10 +95,13 @@ const Conference = () => {
     <Flex css={{ size: "100%", overflow: "hidden" }} direction="column">
       {!isHeadless && (
         <Box
+          ref={headerRef}
           css={{
             h: "$18",
-            transition: "transform 0.5s ease-in-out",
-            transform: performAutoHide ? "translateY(-100%)" : "none",
+            transition: "margin 0.3s ease-in-out",
+            marginTop: performAutoHide
+              ? `-${headerRef.current?.clientHeight}px`
+              : "none",
             "@md": {
               h: "$17",
             },
@@ -116,8 +114,9 @@ const Conference = () => {
       <Box
         css={{
           w: "100%",
-          flex: performAutoHide ? "0 0 100%" : "1 1 0",
+          flex: "1 1 0",
           minHeight: 0,
+          paddingBottom: "env(safe-area-inset-bottom)",
         }}
         data-testid="conferencing"
       >
@@ -125,11 +124,14 @@ const Conference = () => {
       </Box>
       {!isHeadless && (
         <Box
+          ref={footerRef}
           css={{
             flexShrink: 0,
             maxHeight: "$24",
-            transition: "transform 0.5s ease-in-out",
-            transform: performAutoHide ? "translateY(100%)" : "none",
+            transition: "margin 0.3s ease-in-out",
+            marginBottom: performAutoHide
+              ? `-${footerRef.current?.clientHeight}px`
+              : undefined,
             "@md": {
               maxHeight: "unset",
             },
