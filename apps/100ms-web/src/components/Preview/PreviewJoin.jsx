@@ -48,7 +48,7 @@ const PreviewJoin = ({
     defaultPreviewPreference
   );
   const [name, setName] = useState(initialName || previewPreference.name);
-  const { isLocalAudioEnabled, isLocalVideoEnabled } = useAVToggle();
+  const { isLocalAudioEnabled } = useAVToggle();
   const [previewError, setPreviewError] = useState(false);
   const { enableJoin, preview, join } = usePreviewJoin({
     name,
@@ -71,18 +71,11 @@ const PreviewJoin = ({
     setPreviewPreference({
       name,
       isAudioMuted: !isLocalAudioEnabled,
-      isVideoMuted: !isLocalVideoEnabled,
+      isVideoMuted: false,
     });
     join();
     onJoin && onJoin();
-  }, [
-    join,
-    isLocalAudioEnabled,
-    isLocalVideoEnabled,
-    name,
-    setPreviewPreference,
-    onJoin,
-  ]);
+  }, [join, isLocalAudioEnabled, name, setPreviewPreference, onJoin]);
   useEffect(() => {
     if (token) {
       if (skipPreview) {
