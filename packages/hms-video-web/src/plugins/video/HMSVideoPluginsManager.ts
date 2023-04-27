@@ -398,6 +398,7 @@ export class HMSVideoPluginsManager {
       return;
     }
     // const { width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT } = this.hmsTrack.getMediaTrackSettings();
+    alert(JSON.stringify(this.hmsTrack.getMediaTrackSettings(), null, 2));
     const width = this.inputVideo.videoWidth || DEFAULT_WIDTH;
     const height = this.inputVideo.videoHeight || DEFAULT_HEIGHT;
     // TODO: should we reduce height/width to optimize?
