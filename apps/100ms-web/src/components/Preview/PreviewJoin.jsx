@@ -48,7 +48,7 @@ const PreviewJoin = ({
     defaultPreviewPreference
   );
   const [name, setName] = useState(initialName || previewPreference.name);
-  const { isLocalAudioEnabled } = useAVToggle();
+  const { isLocalAudioEnabled, isLocalVideoEnabled } = useAVToggle();
   const [previewError, setPreviewError] = useState(false);
   const { enableJoin, preview, join } = usePreviewJoin({
     name,
@@ -56,7 +56,7 @@ const PreviewJoin = ({
     initEndpoint: env ? `https://${env}-init.100ms.live/init` : undefined,
     initialSettings: {
       isAudioMuted: skipPreview || previewPreference.isAudioMuted,
-      isVideoMuted: false,
+      isVideoMuted: skipPreview || previewPreference.isVideoMuted,
       speakerAutoSelectionBlacklist: ["Yeti Stereo Microphone"],
     },
     captureNetworkQualityInPreview: true,
@@ -71,11 +71,18 @@ const PreviewJoin = ({
     setPreviewPreference({
       name,
       isAudioMuted: !isLocalAudioEnabled,
-      isVideoMuted: false,
+      isVideoMuted: !isLocalVideoEnabled,
     });
     join();
     onJoin && onJoin();
-  }, [join, isLocalAudioEnabled, name, setPreviewPreference, onJoin]);
+  }, [
+    join,
+    isLocalAudioEnabled,
+    isLocalVideoEnabled,
+    name,
+    setPreviewPreference,
+    onJoin,
+  ]);
   useEffect(() => {
     if (token) {
       if (skipPreview) {
