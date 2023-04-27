@@ -9,9 +9,9 @@ export class TestPlugin {
     output.width = input.width;
     output.height = input.height;
     const ctx = output.getContext("2d");
-    ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-    ctx.fillRect(0, 0, input.width, input.height);
-    ctx.globalCompositeOperation = "destination-over";
+    // ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+    // ctx.fillRect(0, 0, input.width, input.height);
+    // ctx.globalCompositeOperation = "destination-over";
     const imgData = input.getContext("2d")?.getImageData();
     ctx.putImageData(imgData, 0, 0);
     // ctx.drawImage(
