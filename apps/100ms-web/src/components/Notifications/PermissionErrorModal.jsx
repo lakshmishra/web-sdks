@@ -6,12 +6,12 @@ import {
 } from "@100mslive/react-sdk";
 import { Button, Dialog, Text } from "@100mslive/react-ui";
 import { DialogRow } from "../../primitives/DialogContent";
-import { isSafari } from "../../common/constants";
 
 export function PermissionErrorModal() {
   const notification = useHMSNotifications(HMSNotificationTypes.ERROR);
   const [deviceType, setDeviceType] = useState("");
   const [isSystemError, setIsSystemError] = useState(false);
+  const [showAction, setShowAction] = useState(false);
   const actions = useHMSActions();
   useEffect(() => {
     if (
@@ -22,11 +22,37 @@ export function PermissionErrorModal() {
     ) {
       return;
     }
-    console.error(`[${notification.type}]`, notification);
     const errorMessage = notification.data?.message;
     const hasAudio = errorMessage.includes("audio");
     const hasVideo = errorMessage.includes("video");
     const hasScreen = errorMessage.includes("screen");
+
+    console.error(`[${notification.type}]`, notification);
+
+    (async () => {
+      setShowAction(false);
+      try {
+        if (hasVideo) {
+          const result = await navigator.permissions?.query({
+            name: "camera",
+          });
+          if (result.state === "prompt") {
+            setShowAction(true);
+          }
+        }
+        if (hasAudio) {
+          const result = await navigator.permissions?.query({
+            name: "camera",
+          });
+          if (result.state === "prompt") {
+            setShowAction(true);
+          }
+        }
+      } catch (err) {
+        console.debug("Permissions query error", err);
+      }
+    })();
+
     if (hasAudio && hasVideo) {
       setDeviceType("Camera and Microphone");
     } else if (hasAudio) {
@@ -65,6 +91,7 @@ export function PermissionErrorModal() {
             <Dialog.DefaultClose
               data-testid="dialoge_cross_icon"
               css={{ alignSelf: "start" }}
+              tabIndex="-1"
             />
           </Dialog.Title>
           <Text variant="md" css={{ py: "$10" }}>
@@ -73,18 +100,21 @@ export function PermissionErrorModal() {
               ? `Enable permissions for ${deviceType} from sytem settings`
               : `Enable permissions for ${deviceType} from address bar or browser settings`}
           </Text>
-          {notification?.data?.nativeError?.message.includes("dismissed") ||
-          isSafari ? (
+          {showAction ? (
             <DialogRow justify="end">
               <Button
                 variant="primary"
                 onClick={async () => {
                   setDeviceType("");
                   if (deviceType.includes("Camera")) {
-                    await actions.setLocalVideoEnabled(true);
+                    await actions
+                      .setLocalVideoEnabled(true)
+                      .catch(console.error);
                   }
                   if (deviceType.includes("Microphone")) {
-                    await actions.setLocalAudioEnabled(true);
+                    await actions
+                      .setLocalAudioEnabled(true)
+                      .catch(console.error);
                   }
                 }}
               >
