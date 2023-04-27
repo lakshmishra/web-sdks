@@ -42,7 +42,7 @@ export function PermissionErrorModal() {
         }
         if (hasAudio) {
           const result = await navigator.permissions?.query({
-            name: "camera",
+            name: "microphone",
           });
           if (result.state === "prompt") {
             setShowAction(true);
