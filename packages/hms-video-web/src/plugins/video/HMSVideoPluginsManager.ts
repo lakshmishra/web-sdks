@@ -397,7 +397,9 @@ export class HMSVideoPluginsManager {
     if (!this.inputCanvas || !this.inputVideo) {
       return;
     }
-    const { width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT } = this.hmsTrack.getMediaTrackSettings();
+    // const { width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT } = this.hmsTrack.getMediaTrackSettings();
+    const width = this.inputVideo.videoWidth || DEFAULT_WIDTH;
+    const height = this.inputVideo.videoHeight || DEFAULT_HEIGHT;
     // TODO: should we reduce height/width to optimize?
     if (this.inputCanvas.height !== height) {
       this.inputCanvas.height = height;
