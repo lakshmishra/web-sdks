@@ -1,5 +1,6 @@
 import { IAnalyticsPropertiesProvider } from '../../analytics/IAnalyticsPropertiesProvider';
-import { HMSVideoCodec, HMSVideoTrackSettings as IHMSVideoTrackSettings } from '../../interfaces';
+import { HMSFacingMode, HMSVideoCodec, HMSVideoTrackSettings as IHMSVideoTrackSettings } from '../../interfaces';
+import { isIOS } from '../../utils/support';
 
 export class HMSVideoTrackSettingsBuilder {
   private _width?: number = 320;
@@ -81,6 +82,7 @@ export class HMSVideoTrackSettings implements IHMSVideoTrackSettings, IAnalytics
   readonly maxBitrate?: number;
   readonly deviceId?: string;
   readonly advanced?: Array<MediaTrackConstraintSet>;
+  readonly facingMode?: HMSFacingMode | undefined;
 
   constructor(
     width?: number,
@@ -100,16 +102,24 @@ export class HMSVideoTrackSettings implements IHMSVideoTrackSettings, IAnalytics
     this.advanced = advanced;
   }
 
+  // eslint-disable-next-line complexity
   toConstraints(isScreenShare?: boolean): MediaTrackConstraints {
     let dimensionConstraintKey = 'ideal';
     if (isScreenShare) {
       dimensionConstraintKey = 'max';
+    }
+    let aspectRatio = (this.width || 1) / (this.height || 1);
+    if (isIOS()) {
+      if (window?.innerWidth < window?.innerHeight) {
+        aspectRatio = (this.height || 1) / (this.width || 1);
+      }
     }
     return {
       width: { [dimensionConstraintKey]: this.width },
       height: { [dimensionConstraintKey]: this.height },
       frameRate: this.maxFramerate,
       deviceId: this.deviceId,
+      aspectRatio: { ideal: aspectRatio },
     };
   }
 
