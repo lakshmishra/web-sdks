@@ -21,17 +21,7 @@ export class TestPlugin {
     //   .getContext("2d")
     //   ?.getImageData(0, 0, output.width, output.height);
     // ctx.putImageData(imgData, 0, 0);
-    ctx.drawImage(
-      input,
-      0,
-      0,
-      input.width,
-      input.height,
-      0,
-      0,
-      input.width,
-      input.height
-    );
+    ctx.drawImage(input, 0, 0, input.width, input.height);
   }
 
   getName() {

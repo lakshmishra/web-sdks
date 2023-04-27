@@ -406,17 +406,7 @@ export class HMSVideoPluginsManager {
       this.inputCanvas.width = width;
     }
     const ctx = this.inputCanvas.getContext('2d');
-    ctx!.drawImage(
-      this.inputVideo,
-      0,
-      0,
-      this.inputCanvas.width,
-      this.inputCanvas.height,
-      0,
-      0,
-      this.inputVideo.width,
-      this.inputVideo.height,
-    );
+    ctx!.drawImage(this.inputVideo, 0, 0, this.inputCanvas.width, this.inputCanvas.height);
   }
 
   private resetCanvases() {
