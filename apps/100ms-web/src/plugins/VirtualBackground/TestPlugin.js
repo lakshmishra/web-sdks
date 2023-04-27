@@ -5,7 +5,12 @@ export class TestPlugin {
       isSupported: true,
     };
   }
+  counter = 0;
   processVideoFrame(input, output) {
+    if (this.counter === 0) {
+      alert(`width:height-${input.width}:${input.height}`);
+      this.counter = 1;
+    }
     output.width = input.width;
     output.height = input.height;
     const ctx = output.getContext("2d");
