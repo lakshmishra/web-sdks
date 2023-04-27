@@ -397,10 +397,7 @@ export class HMSVideoPluginsManager {
     if (!this.inputCanvas || !this.inputVideo) {
       return;
     }
-    // const { width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT } = this.hmsTrack.getMediaTrackSettings();
-    alert(JSON.stringify(this.hmsTrack.getMediaTrackSettings(), null, 2));
-    const width = this.inputVideo.videoWidth || DEFAULT_WIDTH;
-    const height = this.inputVideo.videoHeight || DEFAULT_HEIGHT;
+    const { width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT } = this.hmsTrack.getMediaTrackSettings();
     // TODO: should we reduce height/width to optimize?
     if (this.inputCanvas.height !== height) {
       this.inputCanvas.height = height;
@@ -409,7 +406,17 @@ export class HMSVideoPluginsManager {
       this.inputCanvas.width = width;
     }
     const ctx = this.inputCanvas.getContext('2d');
-    ctx!.drawImage(this.inputVideo, 0, 0, this.inputCanvas.width, this.inputCanvas.height);
+    ctx!.drawImage(
+      this.inputVideo,
+      0,
+      0,
+      this.inputCanvas.width,
+      this.inputCanvas.height,
+      0,
+      0,
+      this.inputVideo.width,
+      this.inputVideo.height,
+    );
   }
 
   private resetCanvases() {
