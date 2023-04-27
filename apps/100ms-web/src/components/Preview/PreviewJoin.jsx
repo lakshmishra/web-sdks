@@ -56,7 +56,7 @@ const PreviewJoin = ({
     initEndpoint: env ? `https://${env}-init.100ms.live/init` : undefined,
     initialSettings: {
       isAudioMuted: skipPreview || previewPreference.isAudioMuted,
-      isVideoMuted: skipPreview || previewPreference.isVideoMuted,
+      isVideoMuted: false,
       speakerAutoSelectionBlacklist: ["Yeti Stereo Microphone"],
     },
     captureNetworkQualityInPreview: true,
