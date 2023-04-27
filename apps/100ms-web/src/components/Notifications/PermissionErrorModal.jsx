@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import {
   HMSNotificationTypes,
+  useHMSActions,
   useHMSNotifications,
 } from "@100mslive/react-sdk";
-import { Dialog, Text } from "@100mslive/react-ui";
+import { Button, Dialog, Text } from "@100mslive/react-ui";
+import { DialogRow } from "../../primitives/DialogContent";
 
 export function PermissionErrorModal() {
   const notification = useHMSNotifications(HMSNotificationTypes.ERROR);
   const [deviceType, setDeviceType] = useState("");
   const [isSystemError, setIsSystemError] = useState(false);
+  const actions = useHMSActions();
   useEffect(() => {
     if (
       !notification ||
@@ -69,6 +72,22 @@ export function PermissionErrorModal() {
               ? `Enable permissions for ${deviceType} from sytem settings`
               : `Enable permissions for ${deviceType} from address bar or browser settings`}
           </Text>
+          <DialogRow justify="end">
+            <Button
+              variant="primary"
+              onClick={async () => {
+                setDeviceType("");
+                if (deviceType.includes("Camera")) {
+                  await actions.setLocalVideoEnabled(true);
+                }
+                if (deviceType.includes("Microphone")) {
+                  await actions.setLocalAudioEnabled(true);
+                }
+              }}
+            >
+              Request permissions
+            </Button>
+          </DialogRow>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
