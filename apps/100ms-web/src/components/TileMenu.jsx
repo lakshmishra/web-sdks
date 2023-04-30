@@ -130,7 +130,7 @@ const TileMenu = ({
   const isPrimaryVideoTrack =
     useHMSStore(selectVideoTrackByPeerID(peerID))?.id === videoTrackID;
   const uiMode = useHMSStore(selectTemplateAppData).uiMode;
-  const isInset = uiMode === "inset";
+  const isInset = true;
 
   const isPinEnabled = useIsFeatureEnabled(FEATURE_LIST.PIN_TILE);
   const showPinAction =

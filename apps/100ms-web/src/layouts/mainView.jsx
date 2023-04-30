@@ -42,7 +42,8 @@ export const ConferenceMainView = () => {
   const peerSharingPlaylist = useHMSStore(selectPeerSharingVideoPlaylist);
   const { whiteboardOwner: whiteboardShared } = useWhiteboardMetadata();
   const isConnected = useHMSStore(selectIsConnectedToRoom);
-  const uiMode = useHMSStore(selectTemplateAppData).uiMode;
+  // const uiMode = useHMSStore(selectTemplateAppData).uiMode;
+  const uiMode = "inset";
   const hmsActions = useHMSActions();
   const isHeadless = useIsHeadless();
   const headlessUIMode = useAppConfig("headlessConfig", "uiMode");
