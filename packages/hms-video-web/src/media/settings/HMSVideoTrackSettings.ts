@@ -107,7 +107,7 @@ export class HMSVideoTrackSettings implements IHMSVideoTrackSettings, IAnalytics
     if (isScreenShare) {
       dimensionConstraintKey = 'max';
     }
-    const isPortrait = isIOS() && window?.innerWidth > window.innerHeight;
+    const isPortrait = isIOS() && window?.innerWidth < window?.innerHeight;
     return {
       width: { [dimensionConstraintKey]: isPortrait ? this.height : this.width },
       height: { [dimensionConstraintKey]: isPortrait ? this.width : this.height },
