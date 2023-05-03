@@ -322,7 +322,7 @@ export class HMSLocalVideoTrack extends HMSVideoTrack {
     } else {
       await localStream.replaceSenderTrack(this.processedTrack || this.nativeTrack, newTrack);
     }
-    await localStream.replaceStreamTrack(this.nativeTrack, newTrack);
+    localStream.replaceStreamTrack(this.nativeTrack, newTrack);
   }
 
   private buildNewSettings = (settings: Partial<HMSVideoTrackSettings>) => {
