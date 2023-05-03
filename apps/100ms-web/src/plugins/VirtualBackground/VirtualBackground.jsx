@@ -13,6 +13,8 @@ import { Loading, Tooltip } from "@100mslive/react-ui";
 import IconButton from "../../IconButton";
 import { TestPlugin } from "./TestPlugin";
 // import { getRandomVirtualBackground } from "./vbutils";
+import { useIsFeatureEnabled } from "../../components/hooks/useFeatures";
+import { FEATURE_LIST } from "../../common/constants";
 
 export const VirtualBackground = () => {
   const pluginRef = useRef(null);
@@ -25,6 +27,8 @@ export const VirtualBackground = () => {
   const isVBPresent = useHMSStore(
     selectIsLocalVideoPluginPresent("TestPlugin")
   );
+  // const isVBPresent = useHMSStore(selectIsLocalVideoPluginPresent("HMSVB"));
+  const isFeatureEnabled = useIsFeatureEnabled(FEATURE_LIST.VIDEO_PLUGINS);
 
   async function createPlugin() {
     if (!pluginRef.current) {
@@ -73,7 +77,7 @@ export const VirtualBackground = () => {
     }
   }
 
-  if (!isAllowedToPublish.video || !isVBSupported) {
+  if (!isAllowedToPublish.video || !isVBSupported || !isFeatureEnabled) {
     return null;
   }
 
