@@ -37,6 +37,7 @@ export type { useCustomEventInput, useCustomEventResult } from './hooks/useCusto
 
 // helpers
 export { throwErrorHandler } from './utils/commons';
+export { getVideoTracksFromPeers } from './utils/layout';
 
 // reexport everything from store so app can import everything directly from this
 export * from '@100mslive/hms-video-store';

@@ -1,33 +1,75 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   selectLocalPeerID,
+  selectTracksMap,
   useHMSStore,
-  useVideoList,
 } from "@100mslive/react-sdk";
-import { getLeft, StyledVideoList, useTheme } from "@100mslive/react-ui";
+import { getVideoTracksFromPeers } from "@100mslive/react-sdk/dist/utils/layout";
+import { css, getLeft, StyledVideoList } from "@100mslive/react-ui";
 import { Pagination } from "./Pagination";
 import ScreenshareTile from "./ScreenshareTile";
 import VideoTile from "./VideoTile";
-import { useAppConfig } from "./AppData/useAppConfig";
+// import { useAppConfig } from "./AppData/useAppConfig";
 import { useIsHeadless, useUISettings } from "./AppData/useUISettings";
 import { UI_SETTINGS } from "../common/constants";
 
 const List = ({
-  maxTileCount,
+  maxTileCount = 9,
   peers,
   maxColCount,
   maxRowCount,
   includeScreenShareForPeer,
 }) => {
-  const { aspectRatio } = useTheme();
-  const tileOffset = useAppConfig("headlessConfig", "tileOffset");
+  // const { aspectRatio } = useTheme();
+  // const tileOffset = useAppConfig("headlessConfig", "tileOffset");
   const isHeadless = useIsHeadless();
+  const trackMap = useHMSStore(selectTracksMap);
   const hideLocalVideo = useUISettings(UI_SETTINGS.hideLocalVideo);
   const localPeerId = useHMSStore(selectLocalPeerID);
   if (hideLocalVideo && peers.length > 1) {
     peers = filterPeerId(peers, localPeerId);
   }
-  const { ref, pagesWithTiles } = useVideoList({
+  const peersWithTiles = useMemo(() => {
+    return getVideoTracksFromPeers(peers, trackMap, () => false);
+  }, [trackMap, peers]);
+  const noOfPages = peersWithTiles.length / maxTileCount;
+  const pagesWithTiles = [];
+  const remaining = peersWithTiles.length;
+  let index = 0;
+  for (let i = 0; i < noOfPages; i++) {
+    const tilesForPage = Math.min(remaining, maxTileCount);
+    const cols = Math.ceil(Math.sqrt(tilesForPage));
+    const rows = Math.ceil(tilesForPage / cols);
+    const containerStyles = css({
+      display: "grid",
+      gridTemplateColumns: `repeat(${cols * 2}, minmax(0, 1fr))`,
+      gridTemplateRows: `repeat(${rows}, 1fr)`,
+    });
+    const itemStyles = css({
+      gridColumn: "span 2",
+      width: "100%",
+      height: "100%",
+    });
+    const remainder = tilesForPage % cols;
+    const lastRowFirstIndex = tilesForPage - remainder;
+    let peerTiles = [];
+    for (let j = 0; j < tilesForPage; j++) {
+      const tile = peersWithTiles[index++];
+      if (lastRowFirstIndex === j) {
+        const startPosition = cols - remainder + 1;
+        tile.style = css({
+          gridColumn: `${startPosition}/ span 2`,
+          width: "100%",
+          height: "100%",
+        });
+      } else {
+        tile.style = itemStyles;
+      }
+      peerTiles.push(tile);
+    }
+    pagesWithTiles.push({ style: containerStyles, tiles: peerTiles });
+  }
+  /* const { ref, pagesWithTiles } = useVideoList({
     peers,
     maxTileCount,
     maxColCount,
@@ -35,25 +77,27 @@ const List = ({
     includeScreenShareForPeer,
     aspectRatio,
     offsetY: getOffset({ isHeadless, tileOffset }),
-  });
+  }); */
   const [page, setPage] = useState(0);
-  useEffect(() => {
+  console.log({ pagesWithTiles, noOfPages, peersWithTiles, peers });
+  /* useEffect(() => {
     // currentPageIndex should not exceed pages length
     if (page >= pagesWithTiles.length) {
       setPage(0);
     }
-  }, [pagesWithTiles.length, page]);
+  }, [pagesWithTiles.length, page]); */
   return (
-    <StyledVideoList.Root ref={ref}>
+    <StyledVideoList.Root>
       <StyledVideoList.Container>
         {pagesWithTiles && pagesWithTiles.length > 0
-          ? pagesWithTiles.map((tiles, pageNo) => (
+          ? pagesWithTiles.map(({ tiles, style }, pageNo) => (
               <StyledVideoList.View
                 key={pageNo}
                 css={{
                   left: getLeft(pageNo, page),
                   transition: "left 0.3s ease-in-out",
                 }}
+                className={style()}
               >
                 {tiles.map(tile => {
                   if (tile.width === 0 || tile.height === 0) {
@@ -74,6 +118,7 @@ const List = ({
                       peerId={tile.peer?.id}
                       trackId={tile.track?.id}
                       visible={pageNo === page}
+                      className={tile.style()}
                     />
                   );
                 })}
@@ -115,11 +160,11 @@ function filterPeerId(peers, peerId) {
   return peers;
 }
 
-const getOffset = ({ tileOffset, isHeadless }) => {
-  if (!isHeadless || isNaN(Number(tileOffset))) {
-    return 32;
-  }
-  return Number(tileOffset);
-};
+// const getOffset = ({ tileOffset, isHeadless }) => {
+//   if (!isHeadless || isNaN(Number(tileOffset))) {
+//     return 32;
+//   }
+//   return Number(tileOffset);
+// };
 
 export default VideoList;

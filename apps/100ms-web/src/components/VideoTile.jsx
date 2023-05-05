@@ -37,6 +37,7 @@ const Tile = ({
   objectFit = "cover",
   rootCSS = {},
   containerCSS = {},
+  className,
 }) => {
   const trackSelector = trackId
     ? selectVideoTrackByID(trackId)
@@ -91,6 +92,7 @@ const Tile = ({
         visibility: visible ? "visible" : "hidden",
         ...rootCSS,
       }}
+      className={className}
       data-testid={`participant_tile_${peerName}`}
     >
       {peerName !== undefined ? (
