@@ -36,15 +36,14 @@ class PusherCommunicationProvider {
     }
 
     /** @private */
-    this.pusher = new Pusher(process.env.REACT_APP_PUSHER_APP_KEY, {
+    this.pusher = new Pusher("7406454454b987f78c4b", {
       cluster: "ap2",
-      authEndpoint: process.env.REACT_APP_PUSHER_AUTHENDPOINT,
     });
 
     // Pusher.default.logToConsole = true;
 
     /** @private */
-    this.channel = this.pusher.subscribe(`private-${roomId}`);
+    this.channel = this.pusher.subscribe(`my-channel`);
 
     /**
      * When events(peer-join) are sent too early before subscribing to a channel,
