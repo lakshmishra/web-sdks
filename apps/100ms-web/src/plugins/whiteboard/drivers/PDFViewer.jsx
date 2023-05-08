@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import * as TlDraw from "@tldraw/tldraw";
+import { Box } from "@100mslive/react-ui";
 import "./PDFViewer.css";
 
 function PDFViewer(isPdf) {
@@ -42,14 +43,13 @@ function PDFViewer(isPdf) {
     // renderPage();
   }
   return (
-    <div>
-      <TlDraw.Tldraw
-        autofocus
-        disableAssets={true}
-        showSponsorLink={false}
-        showPages={false}
-        showMenu={false}
-      />
+    <Box
+      css={{
+        ".tl-container": {
+          backgroundColor: "transparent !important",
+        },
+      }}
+    >
       <Document
         file={file}
         onLoadSuccess={onDocumentLoadSuccess}
@@ -59,10 +59,16 @@ function PDFViewer(isPdf) {
           canvasRef={currentPageRef}
           key={`page_${numPages}`}
           pageNumber={numPages}
-          className=""
         />
       </Document>
-    </div>
+      <TlDraw.Tldraw
+        autofocus
+        disableAssets={true}
+        showSponsorLink={false}
+        showPages={false}
+        showMenu={false}
+      />
+    </Box>
   );
 }
 
