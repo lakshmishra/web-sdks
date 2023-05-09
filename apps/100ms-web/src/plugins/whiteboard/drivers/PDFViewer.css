@@ -1,9 +1,14 @@
 .pdf_document {
-  position: absolute;
   width: 100%;
-  height: 100%;
+  height: inherit;
   min-width: 0px;
   max-width: 100%;
   min-height: 0px;
   max-height: 100%;
+  position: absolute;
+  left: 20%;
+  margin: auto;
+}
+.react-pdf__Document * {
+  height: inherit !important;
 }
