@@ -34,7 +34,7 @@ const Tile = ({
   width,
   height,
   visible = true,
-  objectFit = "cover",
+  objectFit = "contain",
   rootCSS = {},
   containerCSS = {},
 }) => {
