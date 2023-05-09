@@ -119,8 +119,8 @@ export class HMSVideoTrackSettings implements IHMSVideoTrackSettings, IAnalytics
     }
     const isPortrait = isIOS() && window?.innerWidth < window?.innerHeight;
     return {
-      width: { [dimensionConstraintKey]: this.width },
-      height: { [dimensionConstraintKey]: this.height },
+      width: { [dimensionConstraintKey]: isPortrait ? this.height : this.width },
+      height: { [dimensionConstraintKey]: isPortrait ? this.width : this.height },
       frameRate: this.maxFramerate,
       aspectRatio: isPortrait ? (this.height || 1) / (this.width || 1) : (this.width || 1) / (this.height || 1),
       deviceId: this.deviceId,
