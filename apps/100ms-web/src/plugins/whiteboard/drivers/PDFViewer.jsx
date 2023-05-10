@@ -8,52 +8,50 @@ import React, {
 import { Document, Page, pdfjs } from "react-pdf";
 import * as TlDraw from "@tldraw/tldraw";
 import { Box } from "@100mslive/react-ui";
+import { usePDFMultiplayerState } from "./usePDFMultiplayerState";
 import "./PDFViewer.css";
 
-function PDFViewer(isPdf) {
+const PDF_SCALE = {
+  1440: 1.5,
+  720: 1,
+  360: 0.7,
+  0: 0.5,
+};
+function PDFViewer({ isPdf, roomId }) {
+  const { onMount, onChangePage, initializePDF } =
+    usePDFMultiplayerState(roomId);
   const [file, setFile] = useState(
     "https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK"
   );
   const [isRendered, setIsRendered] = useState(false);
   const [numPages, setNumPages] = useState(1);
+  const ref = useRef(null);
   const currentPageRef = useRef(null);
-  const clientWidthRef = useRef(document.body.clientWidth);
-  // const editorRef = useRef(null);
   const [scale, setScale] = useState(1);
   const tldrawContext = useContext(TlDraw.TldrawApp);
   console.log("usecontext ", tldrawContext);
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-  // useEffect(() => {
-  //   const editor = new TlDraw.Tldraw({
-  //     element: currentPageRef.current,
-  //     autofocus: true,
-  //     disableAssets: true,
-  //     showSponsorLink: false,
-  //     showMenu: true,
-  //     showPages: true,
-  //   });
-  //   editorRef.current = editor;
-  //   return () => {
-  //     editor.destroy();
-  //   };
-  // }, []);
   useEffect(() => {
-    if (clientWidthRef.current > 1440) {
-      setScale(1.75);
-    } else {
-      setScale(1);
+    const resizeObserver = new ResizeObserver(entries => {
+      // Do something with the entries, for example log them
+      console.log("handle ", entries[0].target.clientHeight);
+      if (entries.length > 0) {
+        for (const width in PDF_SCALE) {
+          if (entries[0].target.clientWidth > width) {
+            setScale(PDF_SCALE[width]);
+          }
+        }
+      }
+    });
+
+    if (ref.current) {
+      resizeObserver.observe(ref.current);
     }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
-  // const renderPage = useCallback(() => {
-  //   console.log("render ");
-  //   currentPageRef.current.addEventListener("click", () => {
-  //     editorRef.current.open({
-  //       imageUrl: currentPageRef.current.toDataURL(),
-  //       width: currentPageRef.current.widht,
-  //       height: currentPageRef.current.height,
-  //     });
-  //   });
-  // }, []);
   function onDocumentLoadSuccess({ numPages }) {
     console.log("loading", numPages);
     setNumPages(numPages);
@@ -69,12 +67,15 @@ function PDFViewer(isPdf) {
     if (!isRendered || !currentPageRef.current) {
       return;
     }
-  }, [isRendered]);
-  const onPageChange = data => {
-    console.log(data);
+    initializePDF(file, numPages, 1);
+  }, [isRendered, initializePDF, file, numPages]);
+  const onPageChange = (app, shapes, bindings) => {
+    console.log(shapes, bindings);
+    onChangePage(app, shapes, bindings);
   };
   return (
     <Box
+      ref={ref}
       css={{
         ".tl-container": {
           backgroundColor: "transparent !important",
@@ -105,6 +106,7 @@ function PDFViewer(isPdf) {
         showMenu={false}
         onChangePage={onPageChange}
         showZoom={true}
+        onMount={onMount}
       />
     </Box>
   );

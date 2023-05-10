@@ -1,39 +1,46 @@
-// @ts-check
 import { useCallback, useEffect, useRef, useState } from "react";
-import { selectDidIJoinWithin, useHMSStore } from "@100mslive/react-sdk";
-import { provider as room } from "./PusherCommunicationProvider";
-import { WhiteboardEvents as Events } from "./WhiteboardEvents";
-import { useWhiteboardMetadata } from "./useWhiteboardMetadata";
+import { provider as room } from "../PusherCommunicationProvider";
+import { WhiteboardEvents as Events } from "../WhiteboardEvents";
+import { useWhiteboardState } from "../useMultiplayerState";
 
-export const useWhiteboardState = () => {
-  const { amIWhiteboardOwner } = useWhiteboardMetadata();
-  const shouldRequestState = useHMSStore(selectDidIJoinWithin(850));
-
-  return { shouldRequestState, amIWhiteboardOwner };
-};
-
-/**
- * Ref: https://github.com/tldraw/tldraw/blob/main/apps/www/hooks/useMultiplayerState.ts
- */
-export function useMultiplayerState(roomId) {
+export class PDFData {
+  constructor(url, totalPages, currentPage = 1) {
+    this.url = url;
+    this.totalPages = totalPages;
+    this.currentPage = currentPage;
+    this.liveShapes = new Map();
+    this.liveBindings = new Map();
+  }
+  setLiveShapes(liveShapes) {
+    this.liveShapes = liveShapes;
+  }
+  setCurrentPage(currentPage) {
+    this.currentPage = currentPage;
+  }
+  setLiveBinding(liveBindings) {
+    this.liveBindings = liveBindings;
+  }
+}
+export function usePDFMultiplayerState(roomId) {
+  // TldrawApp
   const [app, setApp] = useState(null);
+  // is pdf loaded and tldraw ready
   const [isReady, setIsReady] = useState(false);
   const { amIWhiteboardOwner, shouldRequestState } = useWhiteboardState();
 
-  /**
-   * Stores current state(shapes, bindings, [assets]) of the whiteboard
-   */
-  const rLiveShapes = useRef(new Map());
-  const rLiveBindings = useRef(new Map());
+  const pdfDataRef = useRef(null);
 
   const getCurrentState = useCallback(() => {
     return {
-      shapes: rLiveShapes.current
-        ? Object.fromEntries(rLiveShapes.current)
+      shapes: pdfDataRef.current?.liveShapes
+        ? Object.fromEntries(pdfDataRef.current?.liveShapes.current)
         : {},
-      bindings: rLiveBindings.current
-        ? Object.fromEntries(rLiveBindings.current)
+      bindings: pdfDataRef.current?.liveBindings
+        ? Object.fromEntries(pdfDataRef.current?.liveBindings.current)
         : {},
+      url: pdfDataRef.current?.url,
+      currentPage: pdfDataRef.current?.currentPage,
+      totalPages: pdfDataRef.current?.totalPages,
     };
   }, []);
 
@@ -43,12 +50,24 @@ export function useMultiplayerState(roomId) {
     }
   }, [amIWhiteboardOwner, isReady, getCurrentState]);
 
+  const applyStateToBoard = useCallback(
+    state => {
+      app === null || app === void 0
+        ? void 0
+        : app.replacePageContent(
+            state.shapes,
+            state.bindings,
+            {} // Object.fromEntries(lAssets.entries())
+          );
+    },
+    [app]
+  );
   const updateLocalState = useCallback(({ shapes, bindings, merge = true }) => {
     if (!(shapes && bindings)) return;
 
     if (merge) {
-      const lShapes = rLiveShapes.current;
-      const lBindings = rLiveBindings.current;
+      const lShapes = pdfDataRef.current?.liveBinding;
+      const lBindings = pdfDataRef.current?.liveBindings;
 
       if (!(lShapes && lBindings)) return;
       Object.entries(shapes).forEach(([id, shape]) => {
@@ -67,24 +86,11 @@ export function useMultiplayerState(roomId) {
         }
       });
     } else {
-      rLiveShapes.current = new Map(Object.entries(shapes));
-      rLiveBindings.current = new Map(Object.entries(bindings));
+      pdfDataRef.current.setLiveShapes(new Map(Object.entries(shapes)));
+      pdfDataRef.current.setLiveBinding(new Map(Object.entries(bindings)));
     }
   }, []);
-
-  const applyStateToBoard = useCallback(
-    state => {
-      app === null || app === void 0
-        ? void 0
-        : app.replacePageContent(
-            state.shapes,
-            state.bindings,
-            {} // Object.fromEntries(lAssets.entries())
-          );
-    },
-    [app]
-  );
-
+  // todo add page change
   const handleChanges = useCallback(
     state => {
       if (!state) {
@@ -101,7 +107,6 @@ export function useMultiplayerState(roomId) {
     },
     [applyStateToBoard, getCurrentState, updateLocalState]
   );
-
   const setupInitialState = useCallback(() => {
     if (!isReady) {
       return;
@@ -126,44 +131,37 @@ export function useMultiplayerState(roomId) {
     handleChanges,
     sendCurrentState,
   ]);
-
-  // Callbacks --------------
-  // Put the state into the window, for debugging.
+  // provide a tldraw app view
   const onMount = useCallback(
     app => {
       app.loadRoom(roomId);
       app.pause(); // Turn off the app's own undo / redo stack
-      // window.app = app;
       setApp(app);
     },
     [roomId]
   );
+  const initializePDF = useCallback((url, totalPages, currentPage = 1) => {
+    const pdfData = new PDFData(url, totalPages, currentPage);
+    pdfDataRef.current = pdfData;
+  }, []);
 
-  // Update the live shapes when the app's shapes change.
   const onChangePage = useCallback(
-    (_app, shapes, bindings, _assets) => {
+    (_app, shapes, bindings) => {
+      if (!(shapes && bindings)) return;
       updateLocalState({ shapes, bindings });
-      room.broadcastEvent(Events.STATE_CHANGE, { shapes, bindings });
-
-      /**
-       * Tldraw thinks that the next update passed to replacePageContent after onChangePage is the own update triggered by onChangePage
-       * and the replacePageContent doesn't have any effect if it is a valid update from remote.
-       *
-       * To overcome this replacePageContent locally onChangePage(not costly - returns from first line).
-       *
-       * Refer: https://github.com/tldraw/tldraw/blob/main/packages/tldraw/src/state/TldrawApp.ts#L684
-       */
+      console.log("here ", shapes, bindings);
+      room.broadcastEvent(Events.STATE_CHANGE, {
+        shapes,
+        bindings,
+        url: pdfDataRef.current?.url,
+        currentPage: pdfDataRef.current?.currentPage || 1,
+        totalPages: pdfDataRef.current?.totalPages,
+      });
       applyStateToBoard(getCurrentState());
     },
     [updateLocalState, applyStateToBoard, getCurrentState]
   );
 
-  // Handle presence updates when the user's pointer / selection changes
-  // const onChangePresence = useCallback((app, user) => {
-  //   updateMyPresence({ id: app.room?.userId, user });
-  // }, [][updateMyPresence]);
-
-  // Subscriptions and initial setup
   useEffect(() => {
     if (!app) return;
     const unsubs = [];
@@ -194,17 +192,9 @@ export function useMultiplayerState(roomId) {
     };
   }, [app, roomId, setupInitialState, sendCurrentState, handleChanges]);
 
-  useEffect(() => {
-    // Store last state on closing whitboard so that when the board is reopened the state could be fetched and reapplied
-    const handleUnmount = () => {
-      if (isReady && !shouldRequestState) {
-        console.log("Whiteboard unmount storing", getCurrentState());
-        room.storeEvent(Events.CURRENT_STATE, getCurrentState());
-      }
-    };
-
-    return handleUnmount;
-  }, [isReady, shouldRequestState, getCurrentState]);
-
-  return { onMount, onChangePage };
+  return {
+    onMount,
+    onChangePage,
+    initializePDF,
+  };
 }
