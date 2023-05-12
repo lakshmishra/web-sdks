@@ -1,6 +1,7 @@
 import { HMSWebrtcStats } from './HMSWebrtcStats';
 import { EventBus } from '../events/EventBus';
 import { IStore } from '../sdk/store';
+import { TransportState } from '../transport/models/TransportState';
 import { RTC_STATS_MONITOR_INTERVAL } from '../utils/constants';
 import HMSLogger from '../utils/logger';
 import { sleep } from '../utils/timer-utils';
@@ -16,6 +17,7 @@ export class HMSWebrtcInternals {
     private readonly eventBus: EventBus,
     private publishConnection?: RTCPeerConnection,
     private subscribeConnection?: RTCPeerConnection,
+    private getState?: () => TransportState,
   ) {}
 
   getPublishPeerConnection() {
@@ -81,7 +83,9 @@ export class HMSWebrtcInternals {
 
   private async startLoop() {
     while (this.isMonitored) {
-      await this.handleStatsUpdate();
+      if (this.getState?.() === TransportState.Joined) {
+        await this.handleStatsUpdate();
+      }
       await sleep(this.interval);
     }
   }

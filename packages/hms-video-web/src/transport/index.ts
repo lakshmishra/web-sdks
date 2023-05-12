@@ -95,6 +95,7 @@ export default class HMSTransport implements ITransport {
       this.eventBus,
       this.publishConnection?.nativeConnection,
       this.subscribeConnection?.nativeConnection,
+      this.getState,
     );
 
     const onStateChange = async (state: TransportState, error?: HMSException) => {
@@ -331,6 +332,10 @@ export default class HMSTransport implements ITransport {
         this.handleSubscribeConnectionConnected();
       }
     },
+  };
+
+  getState = (): TransportState => {
+    return this.state;
   };
 
   getWebrtcInternals() {
