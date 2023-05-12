@@ -27,7 +27,6 @@ export class PDFData {
     } else {
       this.currentPageDetail = this.pdfPageDetails.get(currentPage);
     }
-    console.log("setting page ", this.currentPageDetail);
   }
   getCurrentPageDetail() {
     return this.currentPageDetail;
@@ -236,12 +235,19 @@ export function usePDFMultiplayerState(roomId) {
 
   const onScaleChange = useCallback(
     scale => {
+      console.log("scale ", scale, app);
       if (!app) return;
+      app.zoomTo(scale);
       // app.store.setState(prevState => {
-      //   prevState.appState.currentStyle.scale = scale;
-      //   console.log("scale ", scale);
       //   return {
       //     ...prevState,
+      //     appState: {
+      //       ...prevState.appState,
+      //       currentStyle: {
+      //         ...prevState.appState.currentStyle,
+      //         scale: scale,
+      //       },
+      //     },
       //   };
       // });
     },

@@ -39,10 +39,12 @@ function PDFViewer({ isPdf, roomId }) {
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
       // Do something with the entries, for example log them
+      console.log("entries length ", entries.length);
       if (entries.length > 0) {
         for (const width in PDF_SCALE) {
           if (entries[0].target.clientWidth > width) {
             setScale(PDF_SCALE[width]);
+            console.log("width ", width, entries[0].target.clientWidth);
             onScaleChange(PDF_SCALE[width]);
           }
         }
@@ -50,13 +52,13 @@ function PDFViewer({ isPdf, roomId }) {
     });
 
     if (ref.current) {
-      resizeObserver.observe(ref.current);
+      resizeObserver.observe(window.document.getElementById("root"));
     }
 
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [onScaleChange]);
   function onDocumentLoadSuccess({ numPages }) {
     setTotalPages(numPages);
   }
