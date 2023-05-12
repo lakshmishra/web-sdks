@@ -1,4 +1,5 @@
 import React, {
+  Fragment,
   useCallback,
   useContext,
   useEffect,
@@ -7,7 +8,8 @@ import React, {
 } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import * as TlDraw from "@tldraw/tldraw";
-import { Box } from "@100mslive/react-ui";
+import { Box, Button, Flex } from "@100mslive/react-ui";
+import { useWhiteboardMetadata } from "../useWhiteboardMetadata";
 import { usePDFMultiplayerState } from "./usePDFMultiplayerState";
 import "./PDFViewer.css";
 
@@ -18,27 +20,30 @@ const PDF_SCALE = {
   0: 0.5,
 };
 function PDFViewer({ isPdf, roomId }) {
-  const { onMount, onChangePage, initializePDF } =
-    usePDFMultiplayerState(roomId);
-  const [file, setFile] = useState(
-    "https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK"
-  );
+  const {
+    onMount,
+    onChangePage,
+    onScaleChange,
+    onPDFPageChange,
+    currPage,
+    file,
+  } = usePDFMultiplayerState(roomId);
+  const { amIWhiteboardOwner } = useWhiteboardMetadata();
   const [isRendered, setIsRendered] = useState(false);
-  const [numPages, setNumPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const ref = useRef(null);
   const currentPageRef = useRef(null);
+  const [currentPageId, setCurrentPageId] = useState(`page_${currPage}`);
   const [scale, setScale] = useState(1);
-  const tldrawContext = useContext(TlDraw.TldrawApp);
-  console.log("usecontext ", tldrawContext);
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
       // Do something with the entries, for example log them
-      console.log("handle ", entries[0].target.clientHeight);
       if (entries.length > 0) {
         for (const width in PDF_SCALE) {
           if (entries[0].target.clientWidth > width) {
             setScale(PDF_SCALE[width]);
+            onScaleChange(PDF_SCALE[width]);
           }
         }
       }
@@ -53,25 +58,25 @@ function PDFViewer({ isPdf, roomId }) {
     };
   }, []);
   function onDocumentLoadSuccess({ numPages }) {
-    console.log("loading", numPages);
-    setNumPages(numPages);
-    // renderPage();
+    setTotalPages(numPages);
   }
+
   function onRenderSuccess() {
     setIsRendered(true);
   }
   function degreesToRadians(degrees) {
     return degrees * (Math.PI / 180);
   }
-  useEffect(() => {
-    if (!isRendered || !currentPageRef.current) {
-      return;
-    }
-    initializePDF(file, numPages, 1);
-  }, [isRendered, initializePDF, file, numPages]);
   const onPageChange = (app, shapes, bindings) => {
-    console.log(shapes, bindings);
     onChangePage(app, shapes, bindings);
+  };
+  const onPageNext = () => {
+    onPDFPageChange(currPage + 1);
+    setCurrentPageId(`page_${currPage + 1}`);
+  };
+  const onPagePrev = () => {
+    onPDFPageChange(currPage - 1);
+    setCurrentPageId(`page_${currPage - 1}`);
   };
   return (
     <Box
@@ -92,22 +97,48 @@ function PDFViewer({ isPdf, roomId }) {
       >
         <Page
           canvasRef={currentPageRef}
-          key={`page_${numPages}`}
-          pageNumber={numPages}
+          key={`page_${currPage}`}
+          pageNumber={currPage}
           onRenderSuccess={onRenderSuccess}
           scale={scale}
         />
       </Document>
       <TlDraw.Tldraw
         autofocus
+        // currentPageId={currentPageId}
         disableAssets={true}
         showSponsorLink={false}
-        showPages={true}
         showMenu={false}
         onChangePage={onPageChange}
-        showZoom={true}
         onMount={onMount}
+        showPages={false}
+        showZoom={false}
+        readOnly={!amIWhiteboardOwner}
+        // onChange={onChange}
       />
+      {isRendered && amIWhiteboardOwner ? (
+        <Flex
+          css={{
+            background: "gray",
+            text: "white",
+            position: "absolute",
+            zIndex: "5",
+          }}
+        >
+          <Button outlined onClick={onPagePrev} disabled={currPage === 1}>
+            Prev
+          </Button>
+          <Button
+            outlined
+            onClick={onPageNext}
+            disabled={currPage === totalPages}
+          >
+            Next
+          </Button>
+        </Flex>
+      ) : (
+        <></>
+      )}
     </Box>
   );
 }

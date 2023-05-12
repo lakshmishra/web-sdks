@@ -3,44 +3,83 @@ import { provider as room } from "../PusherCommunicationProvider";
 import { WhiteboardEvents as Events } from "../WhiteboardEvents";
 import { useWhiteboardState } from "../useMultiplayerState";
 
-export class PDFData {
-  constructor(url, totalPages, currentPage = 1) {
-    this.url = url;
-    this.totalPages = totalPages;
-    this.currentPage = currentPage;
+export class PDFPageDetails {
+  constructor() {
     this.liveShapes = new Map();
     this.liveBindings = new Map();
   }
-  setLiveShapes(liveShapes) {
-    this.liveShapes = liveShapes;
+}
+export class PDFData {
+  pdfPageDetails = new Map();
+  constructor(url, currentPage = 1) {
+    this.url = url;
+    this.currentPage = currentPage;
+    this.currentPageDetail = new PDFPageDetails();
+    if (!this.pdfPageDetails.has(currentPage)) {
+      this.pdfPageDetails.set(currentPage, this.currentPageDetail);
+    }
+  }
+  setCurrentPageDetail(currentPage) {
+    this.currentPage = currentPage;
+    if (!this.pdfPageDetails.has(currentPage)) {
+      this.currentPageDetail = new PDFPageDetails();
+      this.pdfPageDetails.set(currentPage, this.currentPageDetail);
+    } else {
+      this.currentPageDetail = this.pdfPageDetails.get(currentPage);
+    }
+    console.log("setting page ", this.currentPageDetail);
+  }
+  getCurrentPageDetail() {
+    return this.currentPageDetail;
   }
   setCurrentPage(currentPage) {
     this.currentPage = currentPage;
+    this.setCurrentPageDetail(currentPage);
   }
-  setLiveBinding(liveBindings) {
-    this.liveBindings = liveBindings;
+  setLiveShapes(liveShapes) {
+    this.currentPageDetail.liveShapes = liveShapes;
+  }
+  setLiveBindings(liveBindings) {
+    this.currentPageDetail.liveBindings = liveBindings;
+  }
+  get liveBindings() {
+    return this.currentPageDetail.liveBindings;
+  }
+  get liveShapes() {
+    return this.currentPageDetail.liveShapes;
   }
 }
 export function usePDFMultiplayerState(roomId) {
   // TldrawApp
   const [app, setApp] = useState(null);
+  const [currPage, setCurrPage] = useState(1);
+  const [file, setFile] = useState(null);
   // is pdf loaded and tldraw ready
   const [isReady, setIsReady] = useState(false);
   const { amIWhiteboardOwner, shouldRequestState } = useWhiteboardState();
 
+  const initializePDF = useCallback((url, currentPage = 1) => {
+    const pdfData = new PDFData(url, currentPage);
+    pdfDataRef.current = pdfData;
+  }, []);
+  useEffect(() => {
+    if (amIWhiteboardOwner) {
+      setFile("https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK");
+      initializePDF(file, 1);
+    }
+  }, [amIWhiteboardOwner, file, initializePDF]);
   const pdfDataRef = useRef(null);
 
   const getCurrentState = useCallback(() => {
     return {
       shapes: pdfDataRef.current?.liveShapes
-        ? Object.fromEntries(pdfDataRef.current?.liveShapes.current)
+        ? Object.fromEntries(pdfDataRef.current?.liveShapes)
         : {},
       bindings: pdfDataRef.current?.liveBindings
-        ? Object.fromEntries(pdfDataRef.current?.liveBindings.current)
+        ? Object.fromEntries(pdfDataRef.current?.liveBindings)
         : {},
       url: pdfDataRef.current?.url,
       currentPage: pdfDataRef.current?.currentPage,
-      totalPages: pdfDataRef.current?.totalPages,
     };
   }, []);
 
@@ -62,56 +101,68 @@ export function usePDFMultiplayerState(roomId) {
     },
     [app]
   );
-  const updateLocalState = useCallback(({ shapes, bindings, merge = true }) => {
-    if (!(shapes && bindings)) return;
+  const updateLocalState = useCallback(
+    ({ shapes, bindings, currentPage, merge = true }) => {
+      if (currentPage) pdfDataRef.current?.setCurrentPage(currentPage);
+      if (!(shapes && bindings)) return;
 
-    if (merge) {
-      const lShapes = pdfDataRef.current?.liveBinding;
-      const lBindings = pdfDataRef.current?.liveBindings;
+      if (merge) {
+        const lShapes = pdfDataRef.current?.liveShapes;
+        const lBindings = pdfDataRef.current?.liveBindings;
 
-      if (!(lShapes && lBindings)) return;
-      Object.entries(shapes).forEach(([id, shape]) => {
-        if (!shape) {
-          lShapes.delete(id);
-        } else {
-          lShapes.set(shape.id, shape);
+        if (!(lShapes && lBindings)) return;
+        if (shapes) {
+          Object.entries(shapes).forEach(([id, shape]) => {
+            if (!shape) {
+              lShapes.delete(id);
+            } else {
+              lShapes.set(shape.id, shape);
+            }
+          });
         }
-      });
-
-      Object.entries(bindings).forEach(([id, binding]) => {
-        if (!binding) {
-          lBindings.delete(id);
-        } else {
-          lBindings.set(binding.id, binding);
+        if (bindings) {
+          Object.entries(bindings).forEach(([id, binding]) => {
+            if (!binding) {
+              lBindings.delete(id);
+            } else {
+              lBindings.set(binding.id, binding);
+            }
+          });
         }
-      });
-    } else {
-      pdfDataRef.current.setLiveShapes(new Map(Object.entries(shapes)));
-      pdfDataRef.current.setLiveBinding(new Map(Object.entries(bindings)));
-    }
-  }, []);
+      } else {
+        pdfDataRef.current?.setLiveShapes(new Map(Object.entries(shapes)));
+        pdfDataRef.current?.setLiveBindings(new Map(Object.entries(bindings)));
+      }
+    },
+    []
+  );
   // todo add page change
   const handleChanges = useCallback(
     state => {
       if (!state) {
         return;
       }
+      const { shapes, bindings, url, currentPage, eventName } = state;
 
-      const { shapes, bindings, eventName } = state;
+      if (!file) {
+        setFile(url);
+        initializePDF(file, currentPage);
+      }
+      setCurrPage(currentPage);
       updateLocalState({
         shapes,
         bindings,
+        currentPage,
         merge: eventName === Events.STATE_CHANGE,
       });
       applyStateToBoard(getCurrentState());
     },
-    [applyStateToBoard, getCurrentState, updateLocalState]
+    [applyStateToBoard, file, getCurrentState, initializePDF, updateLocalState]
   );
   const setupInitialState = useCallback(() => {
     if (!isReady) {
       return;
     }
-
     if (amIWhiteboardOwner) {
       // On board open, update the document with initial/stored content
       handleChanges(room.getStoredEvent(Events.CURRENT_STATE));
@@ -136,32 +187,66 @@ export function usePDFMultiplayerState(roomId) {
     app => {
       app.loadRoom(roomId);
       app.pause(); // Turn off the app's own undo / redo stack
+      // app.onZoom((info, e) => {
+      //   console.log("info , e ", info, e);
+      // });
+      // app.store.subscribe(e => {
+      //   console.log(app.store.getState());
+      // });
       setApp(app);
     },
     [roomId]
   );
-  const initializePDF = useCallback((url, totalPages, currentPage = 1) => {
-    const pdfData = new PDFData(url, totalPages, currentPage);
-    pdfDataRef.current = pdfData;
-  }, []);
 
   const onChangePage = useCallback(
     (_app, shapes, bindings) => {
       if (!(shapes && bindings)) return;
       updateLocalState({ shapes, bindings });
-      console.log("here ", shapes, bindings);
-      room.broadcastEvent(Events.STATE_CHANGE, {
-        shapes,
-        bindings,
-        url: pdfDataRef.current?.url,
-        currentPage: pdfDataRef.current?.currentPage || 1,
-        totalPages: pdfDataRef.current?.totalPages,
-      });
+      if (amIWhiteboardOwner) {
+        room.broadcastEvent(Events.STATE_CHANGE, {
+          shapes,
+          bindings,
+          url: pdfDataRef.current?.url,
+          currentPage: pdfDataRef.current?.currentPage || 1,
+        });
+      }
       applyStateToBoard(getCurrentState());
     },
-    [updateLocalState, applyStateToBoard, getCurrentState]
+    [updateLocalState, amIWhiteboardOwner, applyStateToBoard, getCurrentState]
   );
+  const onPDFPageChange = useCallback(
+    currentPage => {
+      setCurrPage(currentPage);
+      pdfDataRef.current?.setCurrentPage(currentPage);
+      if (amIWhiteboardOwner) {
+        room.broadcastEvent(Events.STATE_CHANGE, {
+          shapes: Object.fromEntries(pdfDataRef.current?.liveShapes),
+          bindings: Object.fromEntries(pdfDataRef.current?.liveBindings),
+          url: pdfDataRef.current?.url,
+          currentPage: pdfDataRef.current?.currentPage || 1,
+        });
+      }
+      applyStateToBoard(getCurrentState());
+    },
+    [amIWhiteboardOwner, applyStateToBoard, getCurrentState]
+  );
+  // const onChange = useCallback(app => {
+  //   console.log("app ", app);
+  // }, []);
 
+  const onScaleChange = useCallback(
+    scale => {
+      if (!app) return;
+      // app.store.setState(prevState => {
+      //   prevState.appState.currentStyle.scale = scale;
+      //   console.log("scale ", scale);
+      //   return {
+      //     ...prevState,
+      //   };
+      // });
+    },
+    [app]
+  );
   useEffect(() => {
     if (!app) return;
     const unsubs = [];
@@ -195,6 +280,10 @@ export function usePDFMultiplayerState(roomId) {
   return {
     onMount,
     onChangePage,
-    initializePDF,
+    // onChange,
+    onPDFPageChange,
+    onScaleChange,
+    currPage,
+    file,
   };
 }
