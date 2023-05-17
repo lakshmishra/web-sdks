@@ -32,11 +32,7 @@ const ActiveSpeakerView = () => {
         maxTileCount={1}
         hideSidePane={!showSidePane}
       />
-      {showSidePane && (
-        <GridSidePaneView
-          peers={peers.filter(peer => peer.id !== activeSpeaker.id)}
-        />
-      )}
+      {showSidePane && <GridSidePaneView peers={peers} />}
     </Flex>
   );
 };
