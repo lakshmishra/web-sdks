@@ -6,12 +6,12 @@ import "./Whiteboard.css";
 
 export const Whiteboard = React.memo(({ roomId }) => {
   const events = useMultiplayerState(roomId);
-  const isPdf = true;
+  const isPdf = false;
   console.log(roomId);
   return !isPdf ? (
     <Tldraw
       autofocus
-      disableAssets={true}
+      disableAssets={false}
       showSponsorLink={false}
       showPages={false}
       showMenu={false}

@@ -108,7 +108,7 @@ function PDFViewer({ isPdf, roomId }) {
       <TlDraw.Tldraw
         autofocus
         // currentPageId={currentPageId}
-        disableAssets={true}
+        disableAssets={false}
         showSponsorLink={false}
         showMenu={false}
         onChangePage={onPageChange}
