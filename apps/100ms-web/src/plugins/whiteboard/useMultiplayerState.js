@@ -5,7 +5,7 @@ import { provider as room } from "./PusherCommunicationProvider";
 import { WhiteboardEvents as Events } from "./WhiteboardEvents";
 import { useWhiteboardMetadata } from "./useWhiteboardMetadata";
 
-const useWhiteboardState = () => {
+export const useWhiteboardState = () => {
   const { amIWhiteboardOwner } = useWhiteboardMetadata();
   const shouldRequestState = useHMSStore(selectDidIJoinWithin(850));
 
@@ -25,6 +25,7 @@ export function useMultiplayerState(roomId) {
    */
   const rLiveShapes = useRef(new Map());
   const rLiveBindings = useRef(new Map());
+  const rLiveAssets = useRef(new Map());
 
   const getCurrentState = useCallback(() => {
     return {
@@ -34,67 +35,103 @@ export function useMultiplayerState(roomId) {
       bindings: rLiveBindings.current
         ? Object.fromEntries(rLiveBindings.current)
         : {},
+      assets: rLiveAssets.current
+        ? Object.fromEntries(rLiveAssets.current)
+        : {},
     };
   }, []);
 
   const sendCurrentState = useCallback(() => {
     if (amIWhiteboardOwner && isReady) {
-      room.broadcastEvent(Events.CURRENT_STATE, getCurrentState());
+      const state = getCurrentState();
+      room.broadcastEvent(Events.CURRENT_STATE, state);
     }
   }, [amIWhiteboardOwner, isReady, getCurrentState]);
 
-  const updateLocalState = useCallback(({ shapes, bindings, merge = true }) => {
-    if (!(shapes && bindings)) return;
+  const updateLocalState = useCallback(
+    ({ shapes, bindings, assets, merge = true }) => {
+      if (!(shapes && bindings && assets)) return;
 
-    if (merge) {
-      const lShapes = rLiveShapes.current;
-      const lBindings = rLiveBindings.current;
+      if (merge) {
+        const lShapes = rLiveShapes.current;
+        const lBindings = rLiveBindings.current;
+        const lAssets = rLiveAssets.current;
 
-      if (!(lShapes && lBindings)) return;
-      Object.entries(shapes).forEach(([id, shape]) => {
-        if (!shape) {
-          lShapes.delete(id);
-        } else {
-          lShapes.set(shape.id, shape);
+        if (!(lShapes && lBindings && lAssets)) return;
+        if (shapes) {
+          Object.entries(shapes).forEach(([id, shape]) => {
+            if (!shape) {
+              lShapes.delete(id);
+            } else {
+              lShapes.set(shape.id, shape);
+            }
+          });
         }
-      });
-
-      Object.entries(bindings).forEach(([id, binding]) => {
-        if (!binding) {
-          lBindings.delete(id);
-        } else {
-          lBindings.set(binding.id, binding);
+        if (bindings) {
+          Object.entries(bindings).forEach(([id, binding]) => {
+            if (!binding) {
+              lBindings.delete(id);
+            } else {
+              lBindings.set(binding.id, binding);
+            }
+          });
         }
-      });
-    } else {
-      rLiveShapes.current = new Map(Object.entries(shapes));
-      rLiveBindings.current = new Map(Object.entries(bindings));
-    }
-  }, []);
+        if (assets) {
+          Object.entries(assets).forEach(([id, asset]) => {
+            if (!asset) {
+              lAssets.delete(id);
+            } else {
+              lAssets.set(asset.id, asset);
+            }
+          });
+        }
+      } else {
+        rLiveShapes.current = new Map(Object.entries(shapes));
+        rLiveBindings.current = new Map(Object.entries(bindings));
+        rLiveAssets.current = new Map(Object.entries(assets));
+      }
+    },
+    []
+  );
 
   const applyStateToBoard = useCallback(
     state => {
+      if (state.assets) {
+        console.log("assets apply to board ", state.assets);
+      }
       app === null || app === void 0
         ? void 0
-        : app.replacePageContent(
-            state.shapes,
-            state.bindings,
-            {} // Object.fromEntries(lAssets.entries())
-          );
+        : app.replacePageContent(state.shapes, state.bindings, state.assets);
     },
     [app]
   );
-
+  const applyAssets = useCallback(
+    assets => {
+      if (!assets) return;
+      const lAssets = rLiveAssets.current;
+      Object.entries(assets).forEach(([id, asset]) => {
+        if (!asset) {
+          lAssets.delete(id);
+        } else {
+          lAssets.set(asset.id, asset);
+        }
+      });
+      applyStateToBoard(getCurrentState());
+      sendCurrentState();
+    },
+    [applyStateToBoard, getCurrentState, sendCurrentState]
+  );
   const handleChanges = useCallback(
     state => {
       if (!state) {
         return;
       }
 
-      const { shapes, bindings, eventName } = state;
+      const { shapes, bindings, assets, eventName } = state;
       updateLocalState({
         shapes,
         bindings,
+        assets,
         merge: eventName === Events.STATE_CHANGE,
       });
       applyStateToBoard(getCurrentState());
@@ -141,9 +178,10 @@ export function useMultiplayerState(roomId) {
 
   // Update the live shapes when the app's shapes change.
   const onChangePage = useCallback(
-    (_app, shapes, bindings, _assets) => {
-      updateLocalState({ shapes, bindings });
-      room.broadcastEvent(Events.STATE_CHANGE, { shapes, bindings });
+    (_app, shapes, bindings, assets) => {
+      console.log("asssests ", shapes, assets, bindings);
+      updateLocalState({ shapes, bindings, assets });
+      room.broadcastEvent(Events.STATE_CHANGE, { shapes, bindings, assets });
 
       /**
        * Tldraw thinks that the next update passed to replacePageContent after onChangePage is the own update triggered by onChangePage
@@ -206,5 +244,5 @@ export function useMultiplayerState(roomId) {
     return handleUnmount;
   }, [isReady, shouldRequestState, getCurrentState]);
 
-  return { onMount, onChangePage };
+  return { onMount, onChangePage, applyAssets };
 }
