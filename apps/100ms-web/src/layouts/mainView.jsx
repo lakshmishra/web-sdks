@@ -87,7 +87,7 @@ export const ConferenceMainView = () => {
     ViewComponent = EmbedView;
   } else if (whiteboardShared) {
     ViewComponent = WhiteboardView;
-  } else if (uiMode !== "inset") {
+  } else if (uiMode === "inset") {
     ViewComponent = InsetView;
   } else if (
     ((peerSharing && peerSharing.id !== peerSharingAudio?.id) ||

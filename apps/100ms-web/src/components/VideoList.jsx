@@ -55,6 +55,9 @@ const List = ({
     let peerTiles = [];
     for (let j = 0; j < tilesForPage; j++) {
       const tile = peersWithTiles[index++];
+      if (!tile) {
+        continue;
+      }
       if (lastRowFirstIndex === j) {
         const startPosition = cols - remainder + 1;
         tile.style = css({
