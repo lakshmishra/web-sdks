@@ -4722,12 +4722,29 @@
     "@use-gesture/react" "^10.2.19"
     perfect-freehand "^1.1.0"
 
+"@tldraw/core@^1.23.2":
+  version "1.23.2"
+  resolved "https://registry.yarnpkg.com/@tldraw/core/-/core-1.23.2.tgz#de043c6ae91b8a21532104819f48da98de5bd372"
+  integrity sha512-cx+KfqemSHvVonNGwEolosMOsJt5cl3PGRBaXcZOOXQxnFALF22dnMtm6lbmlQQA71EfqNMP5e+qV3jCwuYaqA==
+  dependencies:
+    "@tldraw/intersect" "^1.9.2"
+    "@tldraw/vec" "^1.9.2"
+    "@use-gesture/react" "^10.2.19"
+    perfect-freehand "^1.1.0"
+
 "@tldraw/intersect@^1.7.1":
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/@tldraw/intersect/-/intersect-1.7.1.tgz#6f27679dd5ee33cbe85c87cf835bf934f2dfa779"
   integrity sha512-azJvJv4selqiQemipQE9Z1uax0j5XzIoHXQuRL4nm4EFiuS3n6jTTyWr9aQN3f7GgQbhcseq/ynytxfo9df02w==
   dependencies:
     "@tldraw/vec" "^1.7.0"
+
+"@tldraw/intersect@^1.9.2":
+  version "1.9.2"
+  resolved "https://registry.yarnpkg.com/@tldraw/intersect/-/intersect-1.9.2.tgz#1ba20406a8f3da24a59e9c00a5f526ad2358092f"
+  integrity sha512-teUQLy+p5YT4PIKOHaL+zM0NYD1779mPp02xabP+5LGLvv7tt9VaqJ9D899EYppQbBLN6be6CJUrmibrvLtnUQ==
+  dependencies:
+    "@tldraw/vec" "^1.9.2"
 
 "@tldraw/tldraw@^1.18.4":
   version "1.24.5"
@@ -4758,6 +4775,11 @@
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/@tldraw/vec/-/vec-1.7.1.tgz#5bfac9a56e11ad890cbd1c620293d7fcb23bf1ea"
   integrity sha512-qM6Z9RvkLFFEzr91mmsA4HI14msyDgDDOu36csIzG5BYu2bFmEz5siQ8WntHgDtUjzJHP+VSSOTbAXhklEZHLA==
+
+"@tldraw/vec@^1.9.2":
+  version "1.9.2"
+  resolved "https://registry.yarnpkg.com/@tldraw/vec/-/vec-1.9.2.tgz#0b4719fd44dee57c414b82af8b38c2ccdbd27fef"
+  integrity sha512-k9vH52MRpJHjVcaahWu6VqvhLeE9h1qL5Z2gLobS9zTMpUJ59kBQPNo0VPzPlDYBpXdS4GxuB4jYQMnKvuPAZg==
 
 "@tootallnate/once@1":
   version "1.1.2"

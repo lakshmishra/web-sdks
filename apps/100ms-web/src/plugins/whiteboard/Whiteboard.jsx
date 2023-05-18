@@ -22,9 +22,6 @@ export const Whiteboard = React.memo(({ roomId }) => {
         showSponsorLink={false}
         showPages={false}
         showMenu={false}
-        // onAssetCreate={(app, file) => {
-        //   console.log("here");
-        // }}
         {...events}
       />
       <Flex
@@ -46,15 +43,7 @@ export const Whiteboard = React.memo(({ roomId }) => {
             setUrl={setUrl}
             onOpenChange={value => {
               if (value === false && url) {
-                events.applyAssets({
-                  "4de1831d-c68c-4a70-0fab-5cb02de0d1b9": {
-                    id: "4de1831d-c68c-4a70-0fab-5cb02de0d1b9",
-                    type: "image",
-                    name: "img1",
-                    src: url,
-                    size: [674.40625, 379.1683748169839],
-                  },
-                });
+                events.embedURL(url);
               }
               setShowOpenUrl(value);
             }}
