@@ -103,6 +103,18 @@ export function useMultiplayerState(roomId) {
     [app]
   );
 
+  const addAssets = useCallback(assets => {
+    if (!assets) return;
+    updateLocalState({
+      shapes: {},
+      bindings: {},
+      assets,
+      merge: false,
+    });
+
+    applyStateToBoard(getCurrentState());
+    sendCurrentState();
+  }, []);
   const handleChanges = useCallback(
     state => {
       if (!state) {
@@ -225,5 +237,5 @@ export function useMultiplayerState(roomId) {
     return handleUnmount;
   }, [isReady, shouldRequestState, getCurrentState]);
 
-  return { onMount, onChangePage };
+  return { onMount, onChangePage, addAssets };
 }
