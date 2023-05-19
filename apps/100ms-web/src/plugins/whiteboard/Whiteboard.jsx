@@ -2,11 +2,20 @@ import React, { Fragment, useState } from "react";
 import { Tldraw } from "@tldraw/tldraw";
 import { Button, Flex, Text } from "@100mslive/react-ui";
 import { EmbedUrlModal } from "./EmbedAssestUrl";
-import { useSetAppDataByKey } from "../../components/AppData/useUISettings";
 import { useMultiplayerState } from "./useMultiplayerState";
-import { APP_DATA } from "../../common/constants";
 import "./Whiteboard.css";
 
+async function upload(file) {
+  const data = new FormData();
+  data.append("file", file);
+  data.append("file_name", file.name);
+  const res = await fetch("http://localhost:8080/file", {
+    method: "POST",
+    body: data,
+  });
+  const text = await res.text();
+  return text;
+}
 export const Whiteboard = React.memo(({ roomId }) => {
   const events = useMultiplayerState(roomId);
   const [showOpenUrl, setShowOpenUrl] = useState(false);
@@ -22,6 +31,10 @@ export const Whiteboard = React.memo(({ roomId }) => {
         showSponsorLink={false}
         showPages={false}
         showMenu={false}
+        onAssetCreate={async (app, file) => {
+          const url = await upload(file);
+          return url;
+        }}
         {...events}
       />
       <Flex
