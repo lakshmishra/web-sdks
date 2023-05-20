@@ -1,5 +1,7 @@
 // @ts-check
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Utils } from "@tldraw/core";
+import { TDAssetType, TDShapeType } from "@tldraw/tldraw";
 import { selectDidIJoinWithin, useHMSStore } from "@100mslive/react-sdk";
 import { provider as room } from "./PusherCommunicationProvider";
 import { WhiteboardEvents as Events } from "./WhiteboardEvents";
@@ -43,7 +45,8 @@ export function useMultiplayerState(roomId) {
 
   const sendCurrentState = useCallback(() => {
     if (amIWhiteboardOwner && isReady) {
-      room.broadcastEvent(Events.CURRENT_STATE, getCurrentState());
+      const state = getCurrentState();
+      room.broadcastEvent(Events.CURRENT_STATE, state);
     }
   }, [amIWhiteboardOwner, isReady, getCurrentState]);
 
@@ -95,7 +98,6 @@ export function useMultiplayerState(roomId) {
 
   const applyStateToBoard = useCallback(
     state => {
-      console.log("assets ", state.assets);
       app === null || app === void 0
         ? void 0
         : app.replacePageContent(state.shapes, state.bindings, state.assets);
@@ -103,18 +105,6 @@ export function useMultiplayerState(roomId) {
     [app]
   );
 
-  const addAssets = useCallback(assets => {
-    if (!assets) return;
-    updateLocalState({
-      shapes: {},
-      bindings: {},
-      assets,
-      merge: false,
-    });
-
-    applyStateToBoard(getCurrentState());
-    sendCurrentState();
-  }, []);
   const handleChanges = useCallback(
     state => {
       if (!state) {
@@ -229,7 +219,6 @@ export function useMultiplayerState(roomId) {
     // Store last state on closing whitboard so that when the board is reopened the state could be fetched and reapplied
     const handleUnmount = () => {
       if (isReady && !shouldRequestState) {
-        console.log("Whiteboard unmount storing", getCurrentState());
         room.storeEvent(Events.CURRENT_STATE, getCurrentState());
       }
     };
@@ -237,5 +226,50 @@ export function useMultiplayerState(roomId) {
     return handleUnmount;
   }, [isReady, shouldRequestState, getCurrentState]);
 
-  return { onMount, onChangePage, addAssets };
+  const embedURL = url => {
+    if (!app) {
+      return;
+    }
+
+    // Rather than creating each shape individually (which will produce undo / redo entries
+    // for each shape), create an array of all the shapes that we'll need to create. We'll
+    // iterate through these at the bottom of the function to set their points, then create
+    // them through a single call to `createShapes`.
+
+    const id = Utils.uniqueId();
+
+    const assetType = TDAssetType.Image;
+
+    const src = url;
+    let size = [600, 300];
+    let assetId = id;
+    const asset = {
+      id: assetId,
+      type: assetType,
+      name: "sample1",
+      src,
+      size,
+    };
+    // @ts-ignore
+    app.patchState({
+      document: {
+        assets: {
+          [assetId]: asset,
+        },
+      },
+    });
+    const shapesToCreate = [];
+    const point = app.centerPoint;
+    shapesToCreate.push(
+      app?.getImageOrVideoShapeAtPoint(
+        id,
+        TDShapeType.Image,
+        point,
+        size,
+        assetId
+      )
+    );
+    app.createShapes(...shapesToCreate);
+  };
+  return { onMount, onChangePage, embedURL };
 }

@@ -1,11 +1,4 @@
-import React, {
-  Fragment,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import * as TlDraw from "@tldraw/tldraw";
 import { Box, Button, Flex } from "@100mslive/react-ui";
