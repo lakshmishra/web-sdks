@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Utils } from "@tldraw/core";
 import { TDAssetType, TDShapeType } from "@tldraw/tldraw";
 import { selectDidIJoinWithin, useHMSStore } from "@100mslive/react-sdk";
+import { pdfToImage } from "./drivers/PDFToImage";
 import { provider as room } from "./PusherCommunicationProvider";
 import { WhiteboardEvents as Events } from "./WhiteboardEvents";
 import { useWhiteboardMetadata } from "./useWhiteboardMetadata";
@@ -226,7 +227,19 @@ export function useMultiplayerState(roomId) {
     return handleUnmount;
   }, [isReady, shouldRequestState, getCurrentState]);
 
-  const embedURL = url => {
+  async function upload(file) {
+    const data = new FormData();
+    console.log("file ", file);
+    data.append("file", file);
+    data.append("file_name", file.name || "sample");
+    const res = await fetch("http://localhost:8080/file", {
+      method: "POST",
+      body: data,
+    });
+    const text = await res.text();
+    return text;
+  }
+  const embedURL = async url => {
     if (!app) {
       return;
     }
@@ -235,12 +248,17 @@ export function useMultiplayerState(roomId) {
     // for each shape), create an array of all the shapes that we'll need to create. We'll
     // iterate through these at the bottom of the function to set their points, then create
     // them through a single call to `createShapes`.
-
+    let imageURL = url;
+    imageURL = await pdfToImage(url).catch(() => {
+      console.log("not pdf file");
+    });
+    console.log("image ", imageURL);
+    imageURL = await upload(imageURL);
     const id = Utils.uniqueId();
 
     const assetType = TDAssetType.Image;
 
-    const src = url;
+    const src = imageURL;
     let size = [600, 300];
     let assetId = id;
     const asset = {

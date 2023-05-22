@@ -25,7 +25,6 @@ export const Whiteboard = React.memo(({ roomId }) => {
     setShowOpenUrl(true);
   };
   const isPdf = false;
-  console.log(roomId);
   return !isPdf ? (
     <Fragment>
       <Tldraw
@@ -57,9 +56,9 @@ export const Whiteboard = React.memo(({ roomId }) => {
           <EmbedUrlModal
             url={url}
             setUrl={setUrl}
-            onOpenChange={value => {
+            onOpenChange={async value => {
               if (value === false && url) {
-                events.embedURL(url);
+                await events.embedURL(url);
               }
               setShowOpenUrl(value);
             }}

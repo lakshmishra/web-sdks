@@ -26,8 +26,8 @@ export function EmbedUrlModal({ url, setUrl, onOpenChange }) {
             variant="primary"
             type="submit"
             disabled={!url.trim()}
-            onClick={() => {
-              onOpenChange(false);
+            onClick={async () => {
+              await onOpenChange(false);
             }}
             data-testid="embed_url_btn"
             css={{ mr: "$4" }}
