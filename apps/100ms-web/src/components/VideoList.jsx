@@ -43,12 +43,11 @@ const List = ({
     const containerStyles = css({
       display: "grid",
       gridTemplateColumns: `repeat(${cols * 2}, minmax(0, 1fr))`,
-      gridTemplateRows: `repeat(${rows}, 1fr)`,
+      gridTemplateRows: `repeat(${rows}, max-content)`,
     });
     const itemStyles = css({
       gridColumn: "span 2",
       width: "100%",
-      height: "100%",
     });
     const remainder = tilesForPage % cols;
     const lastRowFirstIndex = tilesForPage - remainder;
@@ -63,7 +62,6 @@ const List = ({
         tile.style = css({
           gridColumn: `${startPosition}/ span 2`,
           width: "100%",
-          height: "100%",
         });
       } else {
         tile.style = itemStyles;
