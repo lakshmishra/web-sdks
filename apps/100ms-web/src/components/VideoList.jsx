@@ -44,10 +44,7 @@ const List = ({
       display: "grid",
       gridTemplateColumns: `repeat(${cols * 2}, minmax(0, 1fr))`,
       gridTemplateRows: `repeat(${rows}, max-content)`,
-    });
-    const itemStyles = css({
-      gridColumn: "span 2",
-      width: "100%",
+      gridGap: 8,
     });
     const remainder = tilesForPage % cols;
     const lastRowFirstIndex = tilesForPage - remainder;
@@ -62,9 +59,16 @@ const List = ({
         tile.style = css({
           gridColumn: `${startPosition}/ span 2`,
           width: "100%",
+          height: "100%",
+          aspectRatio: tile.track.width / tile.track.height,
         });
       } else {
-        tile.style = itemStyles;
+        tile.style = css({
+          gridColumn: "span 2",
+          width: "100%",
+          height: "100%",
+          aspectRatio: tile.track.width / tile.track.height,
+        });
       }
       peerTiles.push(tile);
     }
@@ -120,6 +124,7 @@ const List = ({
                       trackId={tile.track?.id}
                       visible={pageNo === page}
                       className={tile.style()}
+                      rootCss={{ padding: 0 }}
                     />
                   );
                 })}
