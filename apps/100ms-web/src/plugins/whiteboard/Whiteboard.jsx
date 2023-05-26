@@ -35,6 +35,7 @@ export const Whiteboard = React.memo(({ roomId }) => {
         showMenu={false}
         onAssetCreate={async (app, file) => {
           const url = await upload(file);
+          console.log("url ", url);
           return url;
         }}
         {...events}

@@ -259,7 +259,7 @@ export function useMultiplayerState(roomId) {
     const assetType = TDAssetType.Image;
 
     const src = imageURL;
-    let size = [600, 300];
+    let size = [600, 600];
     let assetId = id;
     const asset = {
       id: assetId,
