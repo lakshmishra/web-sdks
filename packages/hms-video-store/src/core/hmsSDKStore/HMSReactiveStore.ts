@@ -26,7 +26,7 @@ declare global {
     __triggerBeamEvent__: (args: any) => void;
   }
 }
-
+let count = 1;
 export class HMSReactiveStore<T extends HMSGenericTypes = { sessionStore: Record<string, any> }> {
   private readonly sdk?: HMSSdk;
   private readonly actions: IHMSActions<T>;
@@ -63,6 +63,7 @@ export class HMSReactiveStore<T extends HMSGenericTypes = { sessionStore: Record
     this.initialTriggerOnSubscribe = false;
 
     if (isBrowser) {
+      console.log('HMSReactiveStore: setting window.__hms', count++);
       // @ts-ignore
       window.__hms = this;
     }
