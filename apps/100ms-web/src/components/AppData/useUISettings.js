@@ -231,21 +231,10 @@ export const useShowWhiteboard = () => {
   const { whiteboardEnabled } = useWhiteboardMetadata();
   const hlsViewerRole = useHLSViewerRole();
   const localPeerRole = useHMSStore(selectLocalPeerRoleName);
-  const isWhiteboardFeatureEnabled = useIsFeatureEnabled(
-    FEATURE_LIST.WHITEBOARD
-  );
+
   const showWhiteboard = useMemo(() => {
-    return !(
-      !whiteboardEnabled ||
-      hlsViewerRole === localPeerRole ||
-      !isWhiteboardFeatureEnabled
-    );
-  }, [
-    hlsViewerRole,
-    isWhiteboardFeatureEnabled,
-    localPeerRole,
-    whiteboardEnabled,
-  ]);
+    return !(!whiteboardEnabled || hlsViewerRole === localPeerRole);
+  }, [hlsViewerRole, localPeerRole, whiteboardEnabled]);
   return {
     showWhiteboard: showWhiteboard,
   };
