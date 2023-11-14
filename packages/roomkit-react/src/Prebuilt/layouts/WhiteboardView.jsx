@@ -3,7 +3,7 @@ import { selectPeers, selectRoomID, useHMSStore } from '@100mslive/react-sdk';
 import { SecondaryTiles } from '../components/SecondaryTiles';
 import { ProminenceLayout } from '../components/VideoLayouts/ProminenceLayout';
 import { Box } from '../../Layout';
-// import { Whiteboard } from '../plugins/whiteboard';
+import { Whiteboard } from '../plugins/whiteboard';
 
 const Editor = React.memo(() => {
   return (
@@ -19,7 +19,9 @@ const Editor = React.memo(() => {
         },
       }}
     >
-      <Box css={{ position: 'relative', width: '100%', height: '100%' }}>{/* <Whiteboard roomId={roomId} /> */}</Box>
+      <Box css={{ position: 'relative', width: '100%', height: '100%' }}>
+        <Whiteboard />
+      </Box>
     </Box>
   );
 });

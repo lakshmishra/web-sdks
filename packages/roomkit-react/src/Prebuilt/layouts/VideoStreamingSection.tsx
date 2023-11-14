@@ -16,7 +16,8 @@ import { PDFView } from './PDFView';
 import SidePane from './SidePane';
 // @ts-ignore: No implicit Any
 import { WaitingView } from './WaitingView';
-// import { useWhiteboardMetadata } from '../plugins/whiteboard';
+// @ts-ignore: No implicit Any
+import { useWhiteboardMetadata } from '../plugins/whiteboard';
 import {
   usePDFConfig,
   useUrlToEmbed,
@@ -25,8 +26,8 @@ import {
 } from '../components/AppData/useUISettings';
 // @ts-ignore: No implicit Any
 import { SESSION_STORE_KEY } from '../common/constants';
-
-// const WhiteboardView = React.lazy(() => import("./WhiteboardView"));
+// @ts-ignore: No implicit Any
+const WhiteboardView = React.lazy(() => import('./WhiteboardView'));
 // @ts-ignore: No implicit Any
 const HLSView = React.lazy(() => import('./HLSView'));
 
@@ -40,7 +41,7 @@ export const VideoStreamingSection = ({
   hideControls: boolean;
 }) => {
   const localPeerRole = useHMSStore(selectLocalPeerRoleName);
-  // const { whiteboardOwner: whiteboardShared } = useWhiteboardMetadata();
+  const { whiteboardOwner: whiteboardShared } = useWhiteboardMetadata();
   const isConnected = useHMSStore(selectIsConnectedToRoom);
   const hmsActions = useHMSActions();
   const waitingViewerRole = useWaitingViewerRole();
@@ -67,6 +68,8 @@ export const VideoStreamingSection = ({
     ViewComponent = <WaitingView />;
   } else if (pdfAnnotatorActive) {
     ViewComponent = <PDFView />;
+  } else if (whiteboardShared) {
+    ViewComponent = <WhiteboardView />;
   } else if (urlToIframe) {
     ViewComponent = <EmbedView />;
   } else {

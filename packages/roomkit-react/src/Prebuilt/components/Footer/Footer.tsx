@@ -27,6 +27,7 @@ import { ChatToggle } from './ChatToggle';
 // @ts-ignore: No implicit Any
 import { ParticipantCount } from './ParticipantList';
 import { PollsToggle } from './PollsToggle';
+import { ToggleWhiteboard } from '../../plugins/whiteboard/ToggleWhiteboard';
 // @ts-ignore: No implicit Any
 import { useIsSidepaneTypeOpen, useSidepaneToggle } from '../AppData/useSidepane';
 // @ts-ignore: No implicit Any
@@ -108,6 +109,7 @@ export const Footer = ({
         )}
       </AppFooter.Center>
       <AppFooter.Right>
+        <ToggleWhiteboard screenType={screenType} />
         {showPolls && <PollsToggle />}
         {!isMobile && elements?.chat && <ChatToggle />}
         {elements?.participant_list && <ParticipantCount />}

@@ -9,6 +9,9 @@ async function main() {
   if (pkg.name === '@100mslive/hms-noise-suppression') {
     external.push('fs', 'path', './src/models/Noise.js');
   }
+  if (pkg.name === '@100mslive/roomkit-react') {
+    external.push('*.woff2', '*.woff');
+  }
   const commonOptions = {
     entryPoints: [source],
     minify: false,
