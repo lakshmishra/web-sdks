@@ -1130,7 +1130,7 @@ export class HMSSdk implements HMSInterface {
         try {
           await publishPromise;
         } catch (error) {
-          // HMSLogger.e(this.TAG, 'Error in publish', error);
+          HMSLogger.e(this.TAG, 'Error in publish', error);
           // this.listener?.onError(error as HMSException);
           await this.publish(initialSettings, oldRole);
         }
