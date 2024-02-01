@@ -1116,20 +1116,25 @@ export class HMSSdk implements HMSInterface {
 
   private async publish(initialSettings?: InitialSettings, oldRole?: string) {
     if ([this.store.getPublishParams(), !this.sdkState.published, !isNode].every(value => !!value)) {
+      let publishPromise: Promise<void> | undefined;
       // if preview asRole(oldRole) is used, use roleChangeManager to diff policy and publish, else do normal publish
-      const publishAction =
-        oldRole && oldRole !== this.localPeer?.role?.name
-          ? () =>
-              this.roleChangeManager?.diffRolesAndPublishTracks({
-                oldRole: this.store.getPolicyForRole(oldRole),
-                newRole: this.localPeer!.role!,
-              })
-          : () => this.getAndPublishTracks(initialSettings);
-
-      await publishAction?.()?.catch(error => {
-        HMSLogger.e(this.TAG, 'Error in publish', error);
-        this.listener?.onError(error);
-      });
+      if (oldRole && oldRole !== this.localPeer?.role?.name) {
+        publishPromise = this.roleChangeManager?.diffRolesAndPublishTracks({
+          oldRole: this.store.getPolicyForRole(oldRole),
+          newRole: this.localPeer!.role!,
+        });
+      } else {
+        publishPromise = this.getAndPublishTracks(initialSettings);
+      }
+      if (publishPromise) {
+        try {
+          await publishPromise;
+        } catch (error) {
+          // HMSLogger.e(this.TAG, 'Error in publish', error);
+          // this.listener?.onError(error as HMSException);
+          await this.publish(initialSettings, oldRole);
+        }
+      }
     }
   }
 
