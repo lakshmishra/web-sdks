@@ -14,8 +14,8 @@ export const ActiveSpeakerLayout = () => {
           return <VideoTile peerId={peer.id} />;
         })}
       </Flex>
-      <Box css={{ flex: '1 1 0' }}>
-        <VideoTile peerId={dominantSpeaker?.id} />
+      <Box css={{ flex: '1 1 0', overflow: 'hidden' }}>
+        <VideoTile width="100%" height="100%" peerId={dominantSpeaker?.id} />
       </Box>
     </Flex>
   );
