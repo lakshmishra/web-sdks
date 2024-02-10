@@ -8,7 +8,8 @@ import {
   useHMSStore,
   useHMSVanillaStore,
 } from '@100mslive/react-sdk';
-import { EqualProminence } from './EqualProminence';
+import { ActiveSpeakerLayout } from './ActiveSpeakerLayout';
+// import { EqualProminence } from './EqualProminence';
 import { RoleProminence } from './RoleProminence';
 import { ScreenshareLayout } from './ScreenshareLayout';
 // @ts-ignore: No implicit Any
@@ -120,13 +121,14 @@ export const GridLayout = ({
   }
   return (
     <VideoTileContext.Provider value={tileLayout}>
-      <EqualProminence
+      <ActiveSpeakerLayout />
+      {/* <EqualProminence
         peers={sortedPeers}
         onPageSize={setPageSize}
         onPageChange={setMainPage}
         isInsetEnabled={isInsetEnabled}
         edgeToEdge={edge_to_edge}
-      />
+      /> */}
     </VideoTileContext.Provider>
   );
 };
