@@ -11,9 +11,9 @@ export const ActiveSpeakerLayout = () => {
 
   return (
     <Flex css={{ size: '100%' }}>
-      <Flex direction="column" css={{ w: 240, '@md': { display: 'none' } }}>
+      <Flex direction="column" css={{ overflowY: 'auto', '@md': { display: 'none' } }}>
         {peers.map(peer => {
-          return <VideoTile peerId={peer.id} />;
+          return <VideoTile width={100} height={100} peerId={peer.id} />;
         })}
       </Flex>
       <Box css={{ flex: '1 1 0', overflow: 'hidden' }}>
