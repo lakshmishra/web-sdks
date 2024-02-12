@@ -3,6 +3,7 @@ import { usePrevious } from 'react-use';
 import { selectDominantSpeaker, selectPeers, useHMSStore } from '@100mslive/react-sdk';
 import { Box, Flex } from '../../../Layout';
 import VideoTile from '../VideoTile';
+import { flexCenter } from '../../../utils';
 
 export const ActiveSpeakerLayout = () => {
   const peers = useHMSStore(selectPeers);
@@ -16,8 +17,11 @@ export const ActiveSpeakerLayout = () => {
           return <VideoTile width={100} height={100} peerId={peer.id} />;
         })}
       </Flex>
-      <Box css={{ flex: '1 1 0', overflow: 'hidden' }}>
-        <VideoTile peerId={dominantSpeaker?.id || previousSpeaker?.id} rootCSS={{ maxHeight: '100%' }} />
+      <Box css={{ flex: '1 1 0', overflow: 'hidden', ...flexCenter }}>
+        <VideoTile
+          peerId={dominantSpeaker?.id || previousSpeaker?.id}
+          rootCSS={{ maxHeight: '100%', '& video': { height: '100%', width: 'auto' } }}
+        />
       </Box>
     </Flex>
   );
