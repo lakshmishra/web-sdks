@@ -11,17 +11,28 @@ export const ActiveSpeakerLayout = () => {
   const previousSpeaker = usePrevious(dominantSpeaker);
 
   return (
-    <Flex css={{ size: '100%' }}>
+    <Flex css={{ size: '100%', position: 'relative' }}>
       <Flex direction="column" css={{ overflowY: 'auto', '@md': { display: 'none' } }}>
         {peers.map(peer => {
           return <VideoTile width={100} height={100} peerId={peer.id} />;
         })}
       </Flex>
-      <Box css={{ flex: '1 1 0', overflow: 'hidden', ...flexCenter }}>
-        <VideoTile
-          peerId={dominantSpeaker?.id || previousSpeaker?.id}
-          rootCSS={{ maxHeight: '100%', '& video': { height: '100%', width: 'auto' } }}
-        />
+      <Box
+        css={{
+          flex: '1 1 0',
+          overflow: 'hidden',
+          ...flexCenter,
+          position: 'absolute',
+          left: 120,
+          right: 0,
+          bottom: 0,
+          top: 0,
+          '@md': {
+            left: 0,
+          },
+        }}
+      >
+        <VideoTile peerId={dominantSpeaker?.id || previousSpeaker?.id} rootCSS={{ size: '100%' }} objectFit="contain" />
       </Box>
     </Flex>
   );
