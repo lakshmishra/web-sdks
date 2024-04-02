@@ -91,7 +91,6 @@ const Tile = ({
   const isAudioMuted = !useHMSStore(selectIsPeerAudioEnabled(peerId));
   const isVideoMuted = !track?.enabled;
   const [isMouseHovered, setIsMouseHovered] = useState(false);
-  const isVideoDegraded = track?.degraded;
   const isLocal = localPeerID === peerId;
   const [pinnedTrackId] = useSetAppDataByKey(APP_DATA.pinnedTrackId);
   const pinned = isSameTile({
@@ -151,7 +150,6 @@ const Tile = ({
             data-testid="participant_video_tile"
             css={{
               objectFit,
-              filter: isVideoDegraded ? 'blur($space$2)' : undefined,
               bg: 'transparent',
             }}
           />
