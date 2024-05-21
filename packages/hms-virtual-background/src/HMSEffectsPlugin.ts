@@ -143,6 +143,18 @@ export class HMSEffectsPlugin implements HMSMediaStreamPlugin {
     return this.effects.getStream() || stream;
   }
 
+  pause() {
+    this.executeAfterInit(() => {
+      this.effects.stop();
+    });
+  }
+
+  resume() {
+    this.executeAfterInit(() => {
+      this.effects.run();
+    });
+  }
+
   stop() {
     this.removeEffects();
     this.executeAfterInit(() => {

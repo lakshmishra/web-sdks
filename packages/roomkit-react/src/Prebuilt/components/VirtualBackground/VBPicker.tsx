@@ -108,10 +108,17 @@ export const VBPicker = ({ backgroundMedia = [] }: { backgroundMedia: VirtualBac
   ]);
 
   useEffect(() => {
+    const vbObject = VBHandler.getVBObject();
     if (!isVideoOn) {
       toggleVB();
     }
-    return () => setLoadingEffects(false);
+    if (vbObject instanceof HMSEffectsPlugin) {
+      if (isVideoOn) {
+        vbObject.resume();
+      } else {
+        vbObject.pause();
+      }
+    }
   }, [isVideoOn, setLoadingEffects, toggleVB]);
 
   useSidepaneResetOnLayoutUpdate('virtual_background', SIDE_PANE_OPTIONS.VB);
