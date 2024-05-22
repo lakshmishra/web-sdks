@@ -58,7 +58,7 @@ export const RoleAccordion = ({
 }) => {
   const [ref, { width }] = useMeasure<HTMLDivElement>();
   const isLargeRoom = useHMSStore(selectIsLargeRoom);
-  const { peers, total, loadPeers } = usePaginatedParticipants({ role: roleName, limit: 10 });
+  const { peers, total, loadPeers } = usePaginatedParticipants({ role: roleName, limit: 1 });
   const isOffStageRole = roleName && offStageRoles.includes(roleName);
   let peersInAccordion = peerList;
   // for large rooms, peer list would be empty
