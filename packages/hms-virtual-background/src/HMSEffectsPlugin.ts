@@ -29,8 +29,8 @@ export class HMSEffectsPlugin implements HMSMediaStreamPlugin {
         lowlighter: '',
       },
       wasmPaths: {
-        'ort-wasm.wasm': `${EFFECTS_SDK_ASSETS}ort-wasm.wasm`,
-        'ort-wasm-simd.wasm': `${EFFECTS_SDK_ASSETS}ort-wasm-simd.wasm`,
+        'ort-wasm.wasm': `${EFFECTS_SDK_ASSETS}ort-wasm-b.wasm`,
+        'ort-wasm-simd.wasm': `${EFFECTS_SDK_ASSETS}ort-wasm-simd-b.wasm`,
       },
       provider: 'webgpu',
     });
