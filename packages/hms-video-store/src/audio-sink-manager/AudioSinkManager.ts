@@ -118,6 +118,8 @@ export class AudioSinkManager {
     // this means the audio paused because of external factors(headset removal, incoming phone call)
     HMSLogger.d(this.TAG, 'Audio Paused', event.target.id);
     const audioTrack = this.store.getTrackById(event.target.id);
+    // @ts-ignore
+    __hms.actions.sendBroadcastMessage('Audio Paused', audioTrack?.peerId);
     if (audioTrack) {
       this.autoPausedTracks.add(audioTrack as HMSRemoteAudioTrack);
     }
@@ -146,6 +148,8 @@ export class AudioSinkManager {
       const ex = ErrorFactory.TracksErrors.AudioPlaybackError(
         `Audio playback error for track - ${track.trackId} code - ${audioEl?.error?.code}`,
       );
+      // @ts-ignore
+      __hms.actions.sendBroadcastMessage('Audio error', JSON.stringify(audioEl.error || '{}'));
       this.eventBus.analytics.publish(AnalyticsEventFactory.audioPlaybackError(ex));
       if (audioEl?.error?.code === MediaError.MEDIA_ERR_DECODE) {
         this.removeAudioElement(audioEl, track);
@@ -266,11 +270,16 @@ export class AudioSinkManager {
   };
 
   private startPollingToCheckPausedAudio = () => {
-    if (isMobile()) {
-      this.autoUnpauseTimer = setInterval(() => {
-        this.unpauseAudioTracks();
-      }, 5000);
+    if (!isMobile()) {
+      return;
     }
+    this.autoUnpauseTimer = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        // @ts-ignore
+        __hms.actions.sendBroadcastMessage('UnPausing', this.autoPausedTracks.size, 'tracks');
+        this.unpauseAudioTracks();
+      }
+    }, 5000);
   };
 
   private startPollingForDevices = () => {
