@@ -142,6 +142,11 @@ export class AudioSinkManager {
     audioEl.style.display = 'none';
     audioEl.id = track.trackId;
     audioEl.addEventListener('pause', this.handleAudioPaused);
+    audioEl.addEventListener('play', () => {
+      // @ts-ignore
+      __hms.actions.sendBroadcastMessage(`Audio playing ${this.autoPausedTracks.size}`);
+      this.autoPausedTracks.delete(track);
+    });
 
     audioEl.onerror = async () => {
       HMSLogger.e(this.TAG, 'error on audio element', audioEl.error);
@@ -149,7 +154,7 @@ export class AudioSinkManager {
         `Audio playback error for track - ${track.trackId} code - ${audioEl?.error?.code}`,
       );
       // @ts-ignore
-      __hms.actions.sendBroadcastMessage('Audio error', JSON.stringify(audioEl.error || '{}'));
+      __hms.actions.sendBroadcastMessage(`Audio error ${audioEl.error?.code}`);
       this.eventBus.analytics.publish(AnalyticsEventFactory.audioPlaybackError(ex));
       if (audioEl?.error?.code === MediaError.MEDIA_ERR_DECODE) {
         this.removeAudioElement(audioEl, track);
@@ -223,6 +228,8 @@ export class AudioSinkManager {
       HMSLogger.d(this.TAG, 'Played track', `${track}`);
     } catch (err) {
       this.autoPausedTracks.add(track);
+      // @ts-ignore
+      __hms.actions.sendBroadcastMessage(`Failed to play track ${track.trackId} ${this.autoPausedTracks.size})`);
       HMSLogger.w(this.TAG, 'Failed to play track', `${track}`, err as Error);
       const error = err as Error;
       if (!this.state.autoplayFailed && error.name === 'NotAllowedError') {
@@ -252,6 +259,8 @@ export class AudioSinkManager {
 
   private unpauseAudioTracks = async () => {
     const promises: Promise<void>[] = [];
+    // @ts-ignore
+    __hms.actions.sendBroadcastMessage(`Unpausing tracks ${this.autoPausedTracks.size})`);
     this.autoPausedTracks.forEach(track => {
       promises.push(this.playAudioFor(track));
     });
@@ -276,7 +285,7 @@ export class AudioSinkManager {
     this.autoUnpauseTimer = setInterval(() => {
       if (document.visibilityState === 'visible') {
         // @ts-ignore
-        __hms.actions.sendBroadcastMessage('UnPausing', this.autoPausedTracks.size, 'tracks');
+        __hms.actions.sendBroadcastMessage(`UnPausing ${this.autoPausedTracks.size})`);
         this.unpauseAudioTracks();
       }
     }, 5000);
