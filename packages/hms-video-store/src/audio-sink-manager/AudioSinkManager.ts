@@ -122,6 +122,10 @@ export class AudioSinkManager {
     __hms.actions.sendBroadcastMessage('Audio Paused', audioTrack?.peerId);
     if (audioTrack) {
       this.autoPausedTracks.add(audioTrack as HMSRemoteAudioTrack);
+      if (this.autoUnpauseTimer) {
+        clearInterval(this.autoUnpauseTimer);
+        this.startPollingToCheckPausedAudio();
+      }
     }
   };
 
@@ -218,10 +222,13 @@ export class AudioSinkManager {
   private async playAudioFor(track: HMSRemoteAudioTrack) {
     const audioEl = track.getAudioElement();
     if (!audioEl) {
+      // @ts-ignore
+      __hms.actions.sendBroadcastMessage(`audio element not found ${track.trackId}`);
       HMSLogger.w(this.TAG, 'No audio element found on track', track.trackId);
       return;
     }
     try {
+      audioEl.srcObject = new MediaStream([track.nativeTrack]);
       await audioEl.play();
       this.state.autoplayFailed = false;
       this.autoPausedTracks.delete(track);
@@ -229,7 +236,7 @@ export class AudioSinkManager {
     } catch (err) {
       this.autoPausedTracks.add(track);
       // @ts-ignore
-      __hms.actions.sendBroadcastMessage(`Failed to play track ${track.trackId} ${this.autoPausedTracks.size})`);
+      __hms.actions.sendBroadcastMessage(`Failed to play track ${track.trackId} ${this.autoPausedTracks.size}`);
       HMSLogger.w(this.TAG, 'Failed to play track', `${track}`, err as Error);
       const error = err as Error;
       if (!this.state.autoplayFailed && error.name === 'NotAllowedError') {
